@@ -31,7 +31,7 @@ async def scanner(target_addresses: Iterable, ports: Iterable) -> NoReturn:
 
     elapsed_time = time.time() - start_time
     print('[>>>] TCP Connect scan for {0} completed in {1:.3f} seconds'.format(
-        ' '.join(target_addresses), elapsed_time))
+        ' / '.join(target_addresses), elapsed_time))
     print(*('{0: >7} {1}:{2} --> {3}'.format(
         '[+]', *result) for result in scan_results), sep='\n')
 
