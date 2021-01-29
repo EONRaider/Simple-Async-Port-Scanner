@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# https://github.com/EONRaider/Simple-Async-Scanner
+# https://github.com/EONRaider/Simple-Async-Port-Scanner
 
 __author__ = 'EONRaider @ keybase.io/eonraider'
 
