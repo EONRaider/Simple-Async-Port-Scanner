@@ -1,4 +1,4 @@
-# Python 3 Asynchronous TCP Connect Port Scanner
+# Python 3 Asynchronous TCP/IP Connect Port Scanner
 
 ![Python Version](https://img.shields.io/badge/python-3.x-blue?style=for-the-badge&logo=python)
 ![OS](https://img.shields.io/badge/OS-GNU%2FLinux-red?style=for-the-badge&logo=linux)
@@ -70,7 +70,7 @@ Usage examples:
 - Sample output:
 
 ```
-[>>>] TCP Connect scan for 45.33.32.156 demo.testfire.net completed in 3.0040507316589355 seconds
+[>>>] TCP Connect scan for 45.33.32.156 demo.testfire.net completed in 3.004 seconds
     [+] 45.33.32.156:20 --> closed
     [+] demo.testfire.net:20 --> closed
     [+] 45.33.32.156:21 --> closed
