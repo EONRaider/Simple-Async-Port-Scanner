@@ -24,14 +24,14 @@ async def tcp_connect(loop: asyncio.AbstractEventLoop,
 async def scanner(target_addresses: Iterable, ports: Iterable) -> NoReturn:
     start_time = time.time()
     loop = asyncio.get_event_loop()
-    scans = (asyncio.create_task(tcp_connect(loop, ip_address, port_number))
-             for port_number in ports for ip_address in targets)
+    scans = (asyncio.create_task(tcp_connect(loop, address, port))
+             for port in ports for address in target_addresses)
 
     scan_results = await asyncio.gather(*scans)
 
     elapsed_time = time.time() - start_time
     print('[>>>] TCP Connect scan for {0} completed in {1} seconds'.format(
-        ' '.join(targets), elapsed_time))
+        ' '.join(target_addresses), elapsed_time))
     print(*('{0: >7} {1}:{2} --> {3}'.format(
         '[+]', *result) for result in scan_results), sep='\n')
 
