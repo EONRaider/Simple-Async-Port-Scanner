@@ -78,12 +78,11 @@ class ScanToScreen(object):
 if __name__ == '__main__':
     import argparse
 
-
     def parse_ports(ports) -> Iterator[int]:
         """
         Yields an iterator with integers extracted from a string
         consisting of mixed port numbers and/or ranged intervals.
-        Ex: From '20-25,53,80,111' to (21,22,25,26,27,28,29,30,53,80)
+        Ex: From '20-25,53,80,111' to (20,21,22,23,24,25,53,80,111)
         """
         for port in ports.split(','):
             try:
@@ -91,7 +90,6 @@ if __name__ == '__main__':
             except ValueError:
                 start, end = (int(port) for port in port.split('-'))
                 yield from range(start, end + 1)
-
 
     usage = ('Usage examples:\n'
              '1. python3 simple_async_scan.py google.com -p 80,443\n'
@@ -116,6 +114,9 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     target_sequence: list = args.targets.split(',')
-    port_sequence = parse_ports(args.ports)
+    port_sequence = tuple(parse_ports(args.ports))
 
-    asyncio.run(scanner(target_addresses=target_sequence, ports=port_sequence))
+    scanner = AsyncTCPScanner(target_addresses=target_sequence,
+                              ports=port_sequence)
+    to_screen = ScanToScreen(scanner)
+    scanner.execute()
