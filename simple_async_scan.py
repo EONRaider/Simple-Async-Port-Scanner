@@ -55,20 +55,24 @@ class AsyncTCPScanner(object):
         return ip_address, port, port_state
 
 
-async def scanner(target_addresses: Iterable[str],
-                  ports: Iterable[int]) -> NoReturn:
-    start_time = time.time()
-    loop = asyncio.get_event_loop()
-    scans = (asyncio.create_task(tcp_connect(loop, address, port))
-             for port in ports for address in target_addresses)
+class ScanToScreen(object):
+    def __init__(self, subject):
+        subject.register(self)
 
-    scan_results: tuple = await asyncio.gather(*scans)
+    @staticmethod
+    def update(target_addresses, ports, scan_results, start_time, end_time):
+        targets = ' | '.join(target_addresses)
+        num_ports = len(ports) * len(target_addresses)
+        elapsed_time = end_time - start_time
 
-    elapsed_time = time.time() - start_time
-    print('[>>>] TCP Connect scan for {0} completed in '
-          '{1:.3f} seconds'.format(' / '.join(target_addresses), elapsed_time))
-    for result in scan_results:
-        print('{0: >7} {1}:{2} --> {3}'.format('[+]', *result))
+        print(f'Starting Async Port Scanner at {time.ctime(start_time)}')
+        print(f'Scan report for {targets}\n')
+
+        for result in scan_results:
+            print('{0: >7} {1}:{2} --> {3}'.format('[+]', *result))
+
+        print(f"\nAsync TCP Connect scan of {num_ports} ports for {targets} "
+              f"completed in {elapsed_time:.3f} seconds")
 
 
 if __name__ == '__main__':
