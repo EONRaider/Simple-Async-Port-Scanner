@@ -2,7 +2,7 @@
 
 ![Python Version](https://img.shields.io/badge/python-3.x-blue?style=for-the-badge&logo=python)
 ![OS](https://img.shields.io/badge/OS-GNU%2FLinux-red?style=for-the-badge&logo=linux)
-[![CodeFactor Grade](https://img.shields.io/codefactor/grade/github/eonraider/simple-async-scanner?style=for-the-badge)](https://www.codefactor.io/repository/github/eonraider/simple-async-scanner)
+[![CodeFactor Grade](https://img.shields.io/codefactor/grade/github/eonraider/simple-async-port-scanner?style=for-the-badge)](https://www.codefactor.io/repository/github/eonraider/simple-async-port-scanner)
 [![License](https://img.shields.io/github/license/EONRaider/Packet-Sniffer?style=for-the-badge)](https://github.com/EONRaider/Packet-Sniffer/blob/master/LICENSE)
 
 [![Reddit](https://img.shields.io/badge/Reddit-EONRaider-FF4500?style=flat-square&logo=reddit)](https://www.reddit.com/user/eonraider)
@@ -47,6 +47,53 @@ Usage examples:
 1. python3 simple_async_scan.py google.com -p 80,443
 2. python3 simple_async_scan.py 45.33.32.156,demo.testfire.net,18.192.172.30 -p 20-25,53,80,111,135,139,443,3306,5900
 ```
+
+## Application Performance
+Due to the nature of Python's `asyncio` framework results such as the 
+ones shown below are possible: the first 1000 TCP/IP ports of 
+[scanme.nmap.org](http://scanme.nmap.org) are scanned in **1.538 seconds**:
+
+```
+eonraider@havoc:~$ python3 simple_async_scan.py scanme.nmap.org -p 1-1000
+Starting Async Port Scanner at Fri Jan 29 19:16:09 2021
+Scan report for scanme.nmap.org
+
+    [+] scanme.nmap.org:1 --> closed
+    [+] scanme.nmap.org:2 --> closed
+    <--snippet-->
+    [+] scanme.nmap.org:21 --> closed
+    [+] scanme.nmap.org:22 --> open
+    [+] scanme.nmap.org:23 --> closed
+    <--snippet-->
+    [+] scanme.nmap.org:79 --> closed
+    [+] scanme.nmap.org:80 --> open
+    [+] scanme.nmap.org:81 --> closed
+    <--snippet-->
+    [+] scanme.nmap.org:999 --> closed
+    [+] scanme.nmap.org:1000 --> closed
+
+Async TCP Connect scan of 1000 ports for scanme.nmap.org completed in 1.538 seconds
+```
+
+Compared to the same procedure using `nmap` (set to skip host discovery
+with the -Pn option), taking 22.54 seconds:
+
+```
+eonraider@havoc:~$ nmap scanme.nmap.org -Pn -sT -p 1-1000
+Starting Nmap 7.80 ( https://nmap.org ) at 2021-01-29 17:51 -03
+Nmap scan report for scanme.nmap.org (45.33.32.156)
+Host is up (0.21s latency).
+Other addresses for scanme.nmap.org (not scanned): 2600:3c01::f03c:91ff:fe18:bb2f
+Not shown: 998 closed ports
+PORT   STATE SERVICE
+22/tcp open  ssh
+80/tcp open  http
+
+Nmap done: 1 IP address (1 host up) scanned in 22.54 seconds
+```
+
+*Different tests have shown the present application can be from 10 to 20
+times faster than `nmap` when performing simple TCP Connect scans.*
 
 ## Running the Application
 
