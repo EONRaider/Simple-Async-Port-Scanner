@@ -6,13 +6,14 @@ __author__ = 'EONRaider @ keybase.io/eonraider'
 import asyncio
 import contextlib
 import time
-from typing import Iterable
+from typing import Iterable, Iterator, Tuple, NoReturn
 
 
 async def tcp_connect(loop: asyncio.AbstractEventLoop,
                       ip_address: str,
-                      port: int):
-    with contextlib.suppress(ConnectionRefusedError, asyncio.TimeoutError):
+                      port: int) -> Tuple[str, int, str]:
+    with contextlib.suppress(ConnectionRefusedError, asyncio.TimeoutError,
+                             OSError):
         port_state = 'closed'
         await asyncio.wait_for(
             asyncio.open_connection(ip_address, port, loop=loop), timeout=3.0)
@@ -20,7 +21,7 @@ async def tcp_connect(loop: asyncio.AbstractEventLoop,
     return ip_address, port, port_state
 
 
-async def scanner(targets: Iterable, ports: Iterable):
+async def scanner(target_addresses: Iterable, ports: Iterable) -> NoReturn:
     start_time = time.time()
     loop = asyncio.get_event_loop()
     scans = (asyncio.create_task(tcp_connect(loop, ip_address, port_number))
