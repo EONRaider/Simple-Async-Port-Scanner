@@ -6,19 +6,53 @@ __author__ = 'EONRaider @ keybase.io/eonraider'
 import asyncio
 import contextlib
 import time
-from typing import Iterable, Iterator, Tuple, NoReturn
+from typing import Iterable, Iterator, Tuple
 
 
-async def tcp_connect(loop: asyncio.AbstractEventLoop,
-                      ip_address: str,
-                      port: int) -> Tuple[str, int, str]:
-    with contextlib.suppress(ConnectionRefusedError, asyncio.TimeoutError,
-                             OSError):
-        port_state = 'closed'
-        await asyncio.wait_for(
-            asyncio.open_connection(ip_address, port, loop=loop), timeout=3.0)
-        port_state = 'open'
-    return ip_address, port, port_state
+class AsyncTCPScanner(object):
+    def __init__(self, target_addresses: Iterable[str], ports: Iterable[int]):
+        self.target_addresses = target_addresses
+        self.ports = ports
+        self.start_time = None
+        self.end_time = None
+        self.scan_results = None
+        self.__observers = list()
+
+    def register(self, observer):
+        self.__observers.append(observer)
+
+    def __notify_all(self):
+        for observer in self.__observers:
+            observer.update(self.target_addresses,
+                            self.ports,
+                            self.scan_results,
+                            self.start_time,
+                            self.end_time)
+
+    def execute(self):
+        self.start_time = time.time()
+        self.scan_results: tuple = asyncio.run(self.__scan_targets())
+        self.end_time = time.time()
+        self.__notify_all()
+
+    async def __scan_targets(self) -> tuple:
+        loop = asyncio.get_event_loop()
+        scans = (asyncio.create_task(self.__tcp_connection(loop, address, port))
+                 for port in self.ports for address in self.target_addresses)
+        return await asyncio.gather(*scans)
+
+    @staticmethod
+    async def __tcp_connection(loop: asyncio.AbstractEventLoop,
+                               ip_address: str,
+                               port: int) -> Tuple[str, int, str]:
+        with contextlib.suppress(ConnectionRefusedError, asyncio.TimeoutError,
+                                 OSError):
+            port_state = 'closed'
+            await asyncio.wait_for(
+                asyncio.open_connection(ip_address, port, loop=loop),
+                timeout=3.0)
+            port_state = 'open'
+        return ip_address, port, port_state
 
 
 async def scanner(target_addresses: Iterable[str],
