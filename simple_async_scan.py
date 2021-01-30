@@ -3,23 +3,24 @@
 
 __author__ = 'EONRaider @ keybase.io/eonraider'
 
+import abc
 import asyncio
 import socket
-import time
 from collections import defaultdict
+from time import time, ctime
 from typing import Iterator, Sequence, Tuple
-
-i = ' ' * 4  # Basic indentation level
 
 
 class AsyncTCPScanner(object):
-    def __init__(self, target_addresses: Sequence[str], ports: Sequence[int]):
+    def __init__(self, target_addresses: Sequence[str], ports: Sequence[int],
+                 show_open_only: bool = False):
         self.target_addresses = target_addresses
         self.ports = ports
         self.start_time: float = 0
         self.end_time: float = 0
         self.json_report = defaultdict(dict)
         self.__observers = list()
+        self.show_open_only = show_open_only
 
     def register(self, observer):
         self.__observers.append(observer)
@@ -58,10 +59,22 @@ class AsyncTCPScanner(object):
             service_name = 'unknown'
         return target_address, port, port_state, service_name
 
-    def __make_json_report(self, scan_results):
-        for info in scan_results:
-            self.json_report[info[0]].update({info[1]: (info[2], info[3])})
+    @classmethod
+    def from_csv_string(cls, addresses: str, ports: str):
+        """
+        Parse strings of comma-separated IP addresses/domain names and
+        port numbers and transform them into sequences that are used to
+        instantiate new AsyncTCPScanner objects. Recommended for use
+        with the Standard Library 'argparse' module or CSV files.
 
+        Args:
+            addresses (str): A string containing a sequence of IP
+                addresses and/or domain names.
+            ports (str): A string containing a sequence of port numbers.
+
+        Returns:
+            An instance of type AsyncTCPScan.
+        """
 
         def parse_ports(port_seq) -> Iterator[int]:
             """
@@ -127,19 +140,6 @@ class ScanToScreen(OutputMethod):
 if __name__ == '__main__':
     import argparse
 
-    def parse_ports(ports) -> Iterator[int]:
-        """
-        Yields an iterator with integers extracted from a string
-        consisting of mixed port numbers and/or ranged intervals.
-        Ex: From '20-25,53,80,111' to (20,21,22,23,24,25,53,80,111)
-        """
-        for port in ports.split(','):
-            try:
-                yield int(port)
-            except ValueError:
-                start, end = (int(port) for port in port.split('-'))
-                yield from range(start, end + 1)
-
     usage = ('Usage examples:\n'
              '1. python3 simple_async_scan.py google.com -p 80,443\n'
              '2. python3 simple_async_scan.py '
@@ -160,12 +160,12 @@ if __name__ == '__main__':
                         help="A comma-separated sequence of port numbers "
                              "and/or port ranges to scan on each target "
                              "specified, e.g., '20-25,53,80,443'.")
+    parser.add_argument('--open', action='store_true',
+                        help='Only show open ports in the scan results.')
     args = parser.parse_args()
 
-    target_sequence: list = args.targets.split(',')
-    port_sequence = tuple(parse_ports(args.ports))
-
-    scanner = AsyncTCPScanner(target_addresses=target_sequence,
-                              ports=port_sequence)
+    scanner = AsyncTCPScanner.from_csv_string(addresses=args.targets,
+                                              ports=args.ports)
+    scanner.show_open_only = args.open
     to_screen = ScanToScreen(scanner)
     scanner.execute()
