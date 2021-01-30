@@ -23,11 +23,7 @@ class AsyncTCPScanner(object):
 
     def __notify_all(self):
         for observer in self.__observers:
-            observer.update(self.target_addresses,
-                            self.ports,
-                            self.scan_results,
-                            self.start_time,
-                            self.end_time)
+            observer.update(self)
 
     def execute(self):
         self.start_time = time.time()
@@ -60,19 +56,23 @@ class ScanToScreen(object):
         subject.register(self)
 
     @staticmethod
-    def update(target_addresses, ports, scan_results, start_time, end_time):
-        targets = ' | '.join(target_addresses)
-        num_ports = len(ports) * len(target_addresses)
-        elapsed_time = end_time - start_time
+    def update(scan: AsyncTCPScanner):
+        all_targets = ' | '.join(scan.target_addresses)
+        total_ports = len(scan.ports) * len(scan.target_addresses)
+        elapsed_time = scan.end_time - scan.start_time
+        output = '{}{: ^12}{: ^12}{: ^12}'  # Template for result output
 
-        print(f'Starting Async Port Scanner at {time.ctime(start_time)}')
-        print(f'Scan report for {targets}\n')
+        print(f'Starting Async Port Scanner at {time.ctime(scan.start_time)}')
+        print(f'Scan report for {all_targets}')
 
-        for result in scan_results:
-            print('{0: >7} {1}:{2} --> {3}'.format('[+]', *result))
+        for address in scan.json_report.keys():
+            print(f'\n{i}[>] Results for {address}:')
+            print(output.format(2*i, 'PORT', 'STATE', 'SERVICE'))
+            for port_num, port_info in scan.json_report[address].items():
+                print(output.format(2*i, port_num, port_info[0], port_info[1]))
 
-        print(f"\nAsync TCP Connect scan of {num_ports} ports for {targets} "
-              f"completed in {elapsed_time:.3f} seconds")
+        print(f"\nAsync TCP Connect scan of {total_ports} ports for "
+              f"{all_targets} completed in {elapsed_time:.3f} seconds")
 
 
 if __name__ == '__main__':
