@@ -1,6 +1,6 @@
 # Python 3 Asynchronous TCP/IP Connect Port Scanner
 
-![Python Version](https://img.shields.io/badge/python-3.x-blue?style=for-the-badge&logo=python)
+![Python Version](https://img.shields.io/badge/python-3.7+-blue?style=for-the-badge&logo=python)
 ![OS](https://img.shields.io/badge/OS-GNU%2FLinux-red?style=for-the-badge&logo=linux)
 [![CodeFactor Grade](https://img.shields.io/codefactor/grade/github/eonraider/simple-async-port-scanner?style=for-the-badge)](https://www.codefactor.io/repository/github/eonraider/simple-async-port-scanner)
 [![License](https://img.shields.io/github/license/EONRaider/Packet-Sniffer?style=for-the-badge)](https://github.com/EONRaider/Packet-Sniffer/blob/master/LICENSE)
@@ -51,28 +51,30 @@ Usage examples:
 ## Application Performance
 Due to the nature of Python's `asyncio` framework results such as the 
 ones shown below are possible: the first 1000 TCP/IP ports of 
-[scanme.nmap.org](http://scanme.nmap.org) are scanned in **1.538 seconds**:
+[scanme.nmap.org](http://scanme.nmap.org) are scanned in **2.260 seconds**:
 
 ```
 eonraider@havoc:~$ python3 simple_async_scan.py scanme.nmap.org -p 1-1000
-Starting Async Port Scanner at Fri Jan 29 19:16:09 2021
+Starting Async Port Scanner at Sat Jan 30 11:23:50 2021
 Scan report for scanme.nmap.org
 
-    [+] scanme.nmap.org:1 --> closed
-    [+] scanme.nmap.org:2 --> closed
-    <--snippet-->
-    [+] scanme.nmap.org:21 --> closed
-    [+] scanme.nmap.org:22 --> open
-    [+] scanme.nmap.org:23 --> closed
-    <--snippet-->
-    [+] scanme.nmap.org:79 --> closed
-    [+] scanme.nmap.org:80 --> open
-    [+] scanme.nmap.org:81 --> closed
-    <--snippet-->
-    [+] scanme.nmap.org:999 --> closed
-    [+] scanme.nmap.org:1000 --> closed
+    [>] Results for scanme.nmap.org:
+            PORT       STATE      SERVICE   
+             1         closed      tcpmux   
+             2         closed       nbp     
+    <--snip-->
+             21        closed       ftp     
+             22         open        ssh     
+             23        closed      telnet   
+    <--snip-->
+             79        closed      finger   
+             80         open        http    
+             81        closed     unknown   
+    <--snip-->
+            999        closed     unknown   
+            1000       closed     unknown   
 
-Async TCP Connect scan of 1000 ports for scanme.nmap.org completed in 1.538 seconds
+Async TCP Connect scan of 1000 ports for scanme.nmap.org completed in 2.260 seconds
 ```
 
 Compared to the same procedure using `nmap` (set to skip host discovery
@@ -94,6 +96,20 @@ Nmap done: 1 IP address (1 host up) scanned in 22.54 seconds
 
 *Different tests have shown the present application can be from 10 to 20
 times faster than `nmap` when performing simple TCP Connect scans.*
+
+**ADVISORY:** For the sake of simplicity this application does not
+implement a maximum number of workers responsible for making each
+connection, instead spawning a new worker for every target socket
+(i.e. combination of target address and TCP port) until the process is
+complete. What this means in
+practice is that performing a scan of a significant number of ports on
+a single host will consequently trigger a great number of requests being
+sent almost simultaneously, potentially causing an involuntary situation
+analogous to that of a *SYN-flood Denial-of-Service attack* on hosts not
+able to handle the sudden spike in the number of requests they have to
+handle. For this particular reason, and in addition to the
+[Legal Disclaimer](#legal-disclaimer) section below, **all users are
+advised by the developers to use caution when scanning live hosts.**
 
 ## Running the Application
 
@@ -117,25 +133,35 @@ times faster than `nmap` when performing simple TCP Connect scans.*
 - Sample output:
 
 ```
-[>>>] TCP Connect scan for 45.33.32.156 / demo.testfire.net completed in 3.004 seconds
-    [+] 45.33.32.156:20 --> closed
-    [+] demo.testfire.net:20 --> closed
-    [+] 45.33.32.156:21 --> closed
-    [+] demo.testfire.net:21 --> closed
-    [+] 45.33.32.156:22 --> open
-    [+] demo.testfire.net:22 --> closed
-    [+] 45.33.32.156:23 --> closed
-    [+] demo.testfire.net:23 --> closed
-    [+] 45.33.32.156:24 --> closed
-    [+] demo.testfire.net:24 --> closed
-    [+] 45.33.32.156:25 --> closed
-    [+] demo.testfire.net:25 --> closed
-    [+] 45.33.32.156:53 --> closed
-    [+] demo.testfire.net:53 --> closed
-    [+] 45.33.32.156:80 --> open
-    [+] demo.testfire.net:80 --> open
-    [+] 45.33.32.156:111 --> closed
-    [+] demo.testfire.net:111 --> closed
+eonraider@havoc:~$ python3 simple_async_scan.py 45.33.32.156,demo.testfire.net -p 20-25,53,80,111
+Starting Async Port Scanner at Sat Jan 30 11:22:30 2021
+Scan report for 45.33.32.156 | demo.testfire.net
+
+    [>] Results for 45.33.32.156:
+            PORT       STATE      SERVICE   
+             20        closed     ftp-data  
+             21        closed       ftp     
+             22         open        ssh     
+             23        closed      telnet   
+             24        closed     unknown   
+             25        closed       smtp    
+             53        closed      domain   
+             80         open        http    
+            111        closed      sunrpc   
+
+    [>] Results for demo.testfire.net:
+            PORT       STATE      SERVICE   
+             20        closed     ftp-data  
+             21        closed       ftp     
+             22        closed       ssh     
+             23        closed      telnet   
+             24        closed     unknown   
+             25        closed       smtp    
+             53        closed      domain   
+             80         open        http    
+            111        closed      sunrpc   
+
+Async TCP Connect scan of 18 ports for 45.33.32.156 | demo.testfire.net completed in 3.004 seconds
 ```
 
 ## Legal Disclaimer
