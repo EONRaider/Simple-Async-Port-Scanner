@@ -4,18 +4,21 @@
 __author__ = 'EONRaider @ keybase.io/eonraider'
 
 import asyncio
-import contextlib
+import socket
 import time
-from typing import Iterable, Iterator, Tuple
+from collections import defaultdict
+from typing import Iterator, Sequence, Tuple
+
+i = ' ' * 4  # Basic indentation level
 
 
 class AsyncTCPScanner(object):
-    def __init__(self, target_addresses: Iterable[str], ports: Iterable[int]):
+    def __init__(self, target_addresses: Sequence[str], ports: Sequence[int]):
         self.target_addresses = target_addresses
         self.ports = ports
-        self.start_time = None
-        self.end_time = None
-        self.scan_results = None
+        self.start_time: float = 0
+        self.end_time: float = 0
+        self.json_report = defaultdict(dict)
         self.__observers = list()
 
     def register(self, observer):
@@ -27,8 +30,9 @@ class AsyncTCPScanner(object):
 
     def execute(self):
         self.start_time = time.time()
-        self.scan_results: tuple = asyncio.run(self.__scan_targets())
+        scan_results = asyncio.run(self.__scan_targets())
         self.end_time = time.time()
+        self.__make_json_report(scan_results)
         self.__notify_all()
 
     async def __scan_targets(self) -> tuple:
@@ -39,16 +43,24 @@ class AsyncTCPScanner(object):
 
     @staticmethod
     async def __tcp_connection(loop: asyncio.AbstractEventLoop,
-                               ip_address: str,
-                               port: int) -> Tuple[str, int, str]:
-        with contextlib.suppress(ConnectionRefusedError, asyncio.TimeoutError,
-                                 OSError):
-            port_state = 'closed'
+                               target_address: str,
+                               port: int) -> Tuple[str, int, str, str]:
+        try:
             await asyncio.wait_for(
-                asyncio.open_connection(ip_address, port, loop=loop),
+                asyncio.open_connection(target_address, port, loop=loop),
                 timeout=3.0)
             port_state = 'open'
-        return ip_address, port, port_state
+        except (ConnectionRefusedError, asyncio.TimeoutError, OSError):
+            port_state = 'closed'
+        try:
+            service_name = socket.getservbyport(port)
+        except OSError:
+            service_name = 'unknown'
+        return target_address, port, port_state, service_name
+
+    def __make_json_report(self, scan_results):
+        for info in scan_results:
+            self.json_report[info[0]].update({info[1]: (info[2], info[3])})
 
 
 class ScanToScreen(object):
