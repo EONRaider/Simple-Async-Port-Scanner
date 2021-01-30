@@ -33,12 +33,12 @@ user@host:~/DIR$ git clone https://github.com/EONRaider/Simple-Async-Port-Scanne
 ## Usage
 
 ```
-usage: simple_async_scan.py [-h] -p PORTS [--open] IP_ADDRESSES
+usage: simple_async_scan.py [-h] -p PORTS [--open] ADDRESSES
 
 Simple asynchronous TCP Connect port scanner
 
 positional arguments:
-  IP_ADDRESSES          A comma-separated sequence of IP addresses and/or domain names to scan, e.g., '45.33.32.156,65.61.137.117,testphp.vulnweb.com'.
+  ADDRESSES             A comma-separated sequence of IP addresses and/or domain names to scan, e.g., '45.33.32.156,65.61.137.117,testphp.vulnweb.com'.
 
 optional arguments:
   -h, --help            show this help message and exit

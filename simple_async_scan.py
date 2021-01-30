@@ -157,7 +157,7 @@ if __name__ == '__main__':
         epilog=usage,
         formatter_class=argparse.RawTextHelpFormatter)
 
-    parser.add_argument('targets', type=str, metavar='IP_ADDRESSES',
+    parser.add_argument('targets', type=str, metavar='ADDRESSES',
                         help="A comma-separated sequence of IP addresses "
                              "and/or domain names to scan, e.g., "
                              "'45.33.32.156,65.61.137.117,"
