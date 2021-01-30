@@ -63,27 +63,64 @@ class AsyncTCPScanner(object):
             self.json_report[info[0]].update({info[1]: (info[2], info[3])})
 
 
-class ScanToScreen(object):
+        def parse_ports(port_seq) -> Iterator[int]:
+            """
+            Yield an iterator with integers extracted from a string
+            consisting of mixed port numbers and/or ranged intervals.
+            Ex: From '20-25,53,80,111' to (20,21,22,23,24,25,53,80,111)
+            """
+            for port in port_seq.split(','):
+                try:
+                    yield int(port)
+                except ValueError:
+                    start, end = (int(port) for port in port.split('-'))
+                    yield from range(start, end + 1)
+
+        target_sequence = tuple(addresses.split(','))
+        port_sequence = tuple(parse_ports(ports))
+
+        return cls(target_addresses=target_sequence, ports=port_sequence)
+
+
+class OutputMethod(abc.ABC):
+    """Interface for the implementation of all classes responsible for
+    further processing and/or output of the information gathered by
+    the AsyncTCPScanner class."""
+
     def __init__(self, subject):
         subject.register(self)
 
-    @staticmethod
-    def update(scan: AsyncTCPScanner):
-        all_targets = ' | '.join(scan.target_addresses)
-        total_ports = len(scan.ports) * len(scan.target_addresses)
-        elapsed_time = scan.end_time - scan.start_time
-        output = '{}{: ^12}{: ^12}{: ^12}'  # Template for result output
+    @abc.abstractmethod
+    def update(self, *args, **kwargs):
+        pass
 
-        print(f'Starting Async Port Scanner at {time.ctime(scan.start_time)}')
+
+class ScanToScreen(OutputMethod):
+    def __init__(self, subject):
+        super().__init__(subject)
+        self.scan = subject
+
+    def update(self):
+        all_targets: str = ' | '.join(self.scan.target_addresses)
+        num_ports: int = len(self.scan.ports) * len(self.scan.target_addresses)
+        elapsed_time: float = self.scan.end_time - self.scan.start_time
+        output_template: str = '{}{: ^8}{: ^12}{: ^12}'
+        allowed_states = ('open',) if self.scan.show_open_only is True \
+            else ('open', 'closed')
+        i = ' ' * 4  # Basic indentation level
+
+        print(f'Starting Async Port Scanner at {ctime(self.scan.start_time)}')
         print(f'Scan report for {all_targets}')
 
-        for address in scan.json_report.keys():
-            print(f'\n{i}[>] Results for {address}:')
-            print(output.format(2*i, 'PORT', 'STATE', 'SERVICE'))
-            for port_num, port_info in scan.json_report[address].items():
-                print(output.format(2*i, port_num, port_info[0], port_info[1]))
+        for address in self.scan.json_report.keys():
+            print(f'\n[>] Results for {address}:')
+            print(output_template.format(i, 'PORT', 'STATE', 'SERVICE'))
+            for port_num, port_info in self.scan.json_report[address].items():
+                if port_info[0] in allowed_states:
+                    print(output_template.format(i, port_num, port_info[0],
+                                                 port_info[1]))
 
-        print(f"\nAsync TCP Connect scan of {total_ports} ports for "
+        print(f"\nAsync TCP Connect scan of {num_ports} ports for "
               f"{all_targets} completed in {elapsed_time:.3f} seconds")
 
 
