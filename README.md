@@ -27,7 +27,7 @@ Simply clone this repository with `git clone` and execute the
 [Usage](#usage) section.
 
 ```
-user@host:~/DIR$ git clone https://github.com/EONRaider/Simple-Async-Scan.git
+user@host:~/DIR$ git clone https://github.com/EONRaider/Simple-Async-Port-Scanner.git
 ```
 
 ## Usage
