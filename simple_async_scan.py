@@ -23,18 +23,24 @@ class AsyncTCPScanner(object):
         self.show_open_only = show_open_only
 
     def register(self, observer):
+        """Register a derived class of OutputMethod as an observer"""
         self.__observers.append(observer)
 
     def __notify_all(self):
+        """Send the scan results to all registered observers"""
         for observer in self.__observers:
-            observer.update(self)
+            observer.update()
 
     def execute(self):
-        self.start_time = time.time()
+        self.start_time = time()
         scan_results = asyncio.run(self.__scan_targets())
-        self.end_time = time.time()
+        self.end_time = time()
         self.__make_json_report(scan_results)
         self.__notify_all()
+
+    def __make_json_report(self, scan_results):
+        for info in scan_results:
+            self.json_report[info[0]].update({info[1]: (info[2], info[3])})
 
     async def __scan_targets(self) -> tuple:
         loop = asyncio.get_event_loop()
