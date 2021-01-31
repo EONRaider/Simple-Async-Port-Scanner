@@ -125,6 +125,8 @@ class OutputMethod(abc.ABC):
 
 
 class ScanToScreen(OutputMethod):
+    states = {True: ['open'], False: ['open', 'closed']}
+
     def __init__(self, subject):
         super().__init__(subject)
         self.scan = subject
@@ -133,20 +135,18 @@ class ScanToScreen(OutputMethod):
         all_targets: str = ' | '.join(self.scan.target_addresses)
         num_ports: int = len(self.scan.ports) * len(self.scan.target_addresses)
         elapsed_time: float = self.scan.end_time - self.scan.start_time
-        output_template: str = '{}{: ^8}{: ^12}{: ^12}'
-        allowed_states = ('open',) if self.scan.show_open_only is True \
-            else ('open', 'closed')
-        i = ' ' * 4  # Basic indentation level
+        allowed_states: list = self.states[self.scan.show_open_only]
+        output_template: str = '    {: ^8}{: ^12}{: ^12}'
 
         print(f'Starting Async Port Scanner at {ctime(self.scan.start_time)}')
         print(f'Scan report for {all_targets}')
 
         for address in self.scan.json_report.keys():
             print(f'\n[>] Results for {address}:')
-            print(output_template.format(i, 'PORT', 'STATE', 'SERVICE'))
+            print(output_template.format('PORT', 'STATE', 'SERVICE'))
             for port_num, port_info in self.scan.json_report[address].items():
                 if port_info[0] in allowed_states:
-                    print(output_template.format(i, port_num, port_info[0],
+                    print(output_template.format(port_num, port_info[0],
                                                  port_info[1]))
 
         print(f"\nAsync TCP Connect scan of {num_ports} ports for "
