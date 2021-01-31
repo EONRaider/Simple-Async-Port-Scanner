@@ -8,7 +8,7 @@ import asyncio
 import socket
 from collections import defaultdict
 from time import time, ctime
-from typing import Iterator, Sequence, Tuple
+from typing import Iterator, List, Sequence, Tuple
 
 
 class AsyncTCPScanner(object):
@@ -33,12 +33,21 @@ class AsyncTCPScanner(object):
 
     def execute(self):
         self.start_time = time()
-        scan_results = asyncio.run(self.__scan_targets())
+        scan_results: List[tuple] = asyncio.run(self.__scan_targets())
         self.end_time = time()
-        self.__make_json_report(scan_results)
+        self.__process_results(scan_results)
         self.__notify_all()
 
-    def __make_json_report(self, scan_results):
+    def __process_results(self, scan_results: list):
+        """Create a JSON report with the scan results so that their
+        processing can be done with data organized by target address."""
+
+        """
+        This method converts a 'scan_results' data structure like...
+        [('g.cn', 22, 'closed', 'ssh'), ('g.cn', 80, 'open', 'http')]
+        ... into a more convenient, similar to JSON, dictionary...
+        {'g.cn': {22: ('open', 'ssh'), 80: ('open', 'http')}}
+        """
         for info in scan_results:
             self.json_report[info[0]].update({info[1]: (info[2], info[3])})
 
@@ -46,7 +55,8 @@ class AsyncTCPScanner(object):
         loop = asyncio.get_event_loop()
         scans = (asyncio.create_task(self.__tcp_connection(loop, address, port))
                  for port in self.ports for address in self.target_addresses)
-        return await asyncio.gather(*scans)
+        results = await asyncio.gather(*scans)
+        return results
 
     @staticmethod
     async def __tcp_connection(loop: asyncio.AbstractEventLoop,
