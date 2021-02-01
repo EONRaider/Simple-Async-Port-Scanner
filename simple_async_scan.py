@@ -19,13 +19,19 @@ class AsyncTCPScanner(object):
         self.ports = ports
         self.start_time: float = 0
         self.end_time: float = 0
-        self.results = defaultdict(dict)
-        self.__observers = list()
         self.open_only: bool = show_open_only
+        self.results = defaultdict(dict)
+        self.loop = asyncio.get_event_loop()
+        self.__observers = list()
 
     @property
     def total_time(self):
         return self.end_time - self.start_time
+
+    @property
+    def __scan_coroutines(self):
+        return [self.__scan_target_port(address, port) for port in self.ports
+                for address in self.target_addresses]
 
     def register(self, observer):
         """Register a derived class of OutputMethod as an observer"""
@@ -37,17 +43,12 @@ class AsyncTCPScanner(object):
         [observer.update() for observer in self.__observers]
 
     def execute(self):
-        loop = asyncio.get_event_loop()
-        scans = [self.__scan_target_port(loop, address, port)
-                 for port in self.ports for address in self.target_addresses]
         self.start_time = perf_counter()
-        loop.run_until_complete(asyncio.wait(scans))
+        self.loop.run_until_complete(asyncio.wait(self.__scan_coroutines))
         self.end_time = perf_counter()
         self.__notify_all()
 
-    async def __scan_target_port(self, loop: asyncio.AbstractEventLoop,
-                                 address: str,
-                                 port: int) -> None:
+    async def __scan_target_port(self, address: str, port: int) -> None:
         """
         Execute a TCP handshake on a target port and add the result to
         a JSON data structure of the form:
@@ -56,7 +57,7 @@ class AsyncTCPScanner(object):
         """
         try:
             await asyncio.wait_for(
-                asyncio.open_connection(address, port, loop=loop),
+                asyncio.open_connection(address, port, loop=self.loop),
                 timeout=3.0)
             port_state, reason = 'open', 'syn/ack'
         except (ConnectionRefusedError, asyncio.TimeoutError, OSError):
