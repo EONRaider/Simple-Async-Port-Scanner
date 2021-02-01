@@ -12,7 +12,7 @@ from typing import Iterator, List, Sequence, Tuple
 
 
 class AsyncTCPScanner(object):
-    def __init__(self, target_addresses: Sequence[str], ports: Sequence[int],
+    def __init__(self, target_addresses: Sequence[str], ports: Sequence[int], *,
                  show_open_only: bool = False):
         self.target_addresses = target_addresses
         self.ports = ports
@@ -20,7 +20,7 @@ class AsyncTCPScanner(object):
         self.end_time: float = 0
         self.json_report = defaultdict(dict)
         self.__observers = list()
-        self.show_open_only = show_open_only
+        self.open_only = show_open_only
 
     def register(self, observer):
         """Register a derived class of OutputMethod as an observer"""
@@ -125,8 +125,6 @@ class OutputMethod(abc.ABC):
 
 
 class ScanToScreen(OutputMethod):
-    states = {True: ['open'], False: ['open', 'closed']}
-
     def __init__(self, subject):
         super().__init__(subject)
         self.scan = subject
@@ -135,19 +133,18 @@ class ScanToScreen(OutputMethod):
         all_targets: str = ' | '.join(self.scan.target_addresses)
         num_ports: int = len(self.scan.ports) * len(self.scan.target_addresses)
         elapsed_time: float = self.scan.end_time - self.scan.start_time
-        allowed_states: list = self.states[self.scan.show_open_only]
-        output_template: str = '    {: ^8}{: ^12}{: ^12}'
+        output: str = '    {: ^8}{: ^12}{: ^12}'
 
         print(f'Starting Async Port Scanner at {ctime(self.scan.start_time)}')
         print(f'Scan report for {all_targets}')
 
         for address in self.scan.json_report.keys():
             print(f'\n[>] Results for {address}:')
-            print(output_template.format('PORT', 'STATE', 'SERVICE'))
+            print(output.format('PORT', 'STATE', 'SERVICE'))
             for port_num, port_info in self.scan.json_report[address].items():
-                if port_info[0] in allowed_states:
-                    print(output_template.format(port_num, port_info[0],
-                                                 port_info[1]))
+                if self.scan.open_only is True and port_info[0] == 'closed':
+                    continue
+                print(output.format(port_num, port_info[0], port_info[1]))
 
         print(f"\nAsync TCP Connect scan of {num_ports} ports for "
               f"{all_targets} completed in {elapsed_time:.3f} seconds")
@@ -182,6 +179,6 @@ if __name__ == '__main__':
 
     scanner = AsyncTCPScanner.from_csv_string(addresses=args.targets,
                                               ports=args.ports)
-    scanner.show_open_only = args.open
+    scanner.open_only = args.open
     to_screen = ScanToScreen(scanner)
     scanner.execute()
