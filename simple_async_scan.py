@@ -124,22 +124,21 @@ class ScanToScreen(OutputMethod):
     def update(self):
         all_targets: str = ' | '.join(self.scan.target_addresses)
         num_ports: int = len(self.scan.ports) * len(self.scan.target_addresses)
-        elapsed_time: float = self.scan.end_time - self.scan.start_time
-        output: str = '    {: ^8}{: ^12}{: ^12}'
+        output: str = '    {: ^8}{: ^12}{: ^12}{: ^12}'
 
-        print(f'Starting Async Port Scanner at {ctime(self.scan.start_time)}')
+        print(f'Starting Async Port Scanner at {ctime(time())}')
         print(f'Scan report for {all_targets}')
 
-        for address in self.scan.json_report.keys():
+        for address in self.scan.results.keys():
             print(f'\n[>] Results for {address}:')
-            print(output.format('PORT', 'STATE', 'SERVICE'))
-            for port_num, port_info in self.scan.json_report[address].items():
+            print(output.format('PORT', 'STATE', 'SERVICE', 'REASON'))
+            for port, port_info in sorted(self.scan.results[address].items()):
                 if self.scan.open_only is True and port_info[0] == 'closed':
                     continue
-                print(output.format(port_num, port_info[0], port_info[1]))
+                print(output.format(port, *port_info))
 
         print(f"\nAsync TCP Connect scan of {num_ports} ports for "
-              f"{all_targets} completed in {elapsed_time:.3f} seconds")
+              f"{all_targets} completed in {self.scan.total_time:.3f} seconds")
 
 
 if __name__ == '__main__':
