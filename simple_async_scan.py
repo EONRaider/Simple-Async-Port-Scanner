@@ -8,7 +8,7 @@ import asyncio
 import socket
 from collections import defaultdict
 from time import ctime, perf_counter, time
-from typing import Iterator, Collection
+from typing import Collection, Iterator, Tuple
 
 
 class AsyncTCPScanner(object):
@@ -49,10 +49,10 @@ class AsyncTCPScanner(object):
                                  address: str,
                                  port: int) -> None:
         """
-        Execute a TCP handshake on a target socket and add the result
-        to a JSON data structure of the form:
-        {'g.cn': {22: ('closed', 'ssh', 'timeout'),
-                  80: ('open', 'http', 'syn/ack')}}
+        Execute a TCP handshake on a target port and add the result to
+        a JSON data structure of the form:
+        {'example.com': {22: ('closed', 'ssh', 'timeout'),
+                         80: ('open', 'http', 'syn/ack')}}
         """
         try:
             await asyncio.wait_for(
@@ -67,40 +67,37 @@ class AsyncTCPScanner(object):
             service = 'unknown'
         self.results[address].update({port: (port_state, service, reason)})
 
-    @classmethod
-    def from_csv_string(cls, addresses: str, ports: str):
+
+def parse_csv_strings(addresses: str, ports: str) -> Tuple[set, set]:
+    """
+    Parse strings of comma-separated IP addresses/domain names and
+    port numbers and transform them into sets.
+
+    Args:
+        addresses (str): A string containing a sequence of IP
+            addresses and/or domain names.
+        ports (str): A string containing a sequence of valid port
+            numbers as defined by IETF RFC 6335.
+    Returns:
+        tuple[set, set]: Two sets containing addresses and ports.
+    """
+
+    def parse_ports(port_seq) -> Iterator[int]:
         """
-        Parse strings of comma-separated IP addresses/domain names and
-        port numbers and transform them into sequences that are used to
-        instantiate new AsyncTCPScanner objects. Recommended for use
-        with the Standard Library 'argparse' module or CSV files.
-
-        Args:
-            addresses (str): A string containing a sequence of IP
-                addresses and/or domain names.
-            ports (str): A string containing a sequence of port numbers.
-
-        Returns:
-            An instance of type AsyncTCPScan.
+        Yield an iterator with integers extracted from a string
+        consisting of mixed port numbers and/or ranged intervals.
+        Ex: From '20-25,53,80,111' to (20,21,22,23,24,25,53,80,111)
         """
-
-        def parse_ports(port_seq) -> Iterator[int]:
-            """
-            Yield an iterator with integers extracted from a string
-            consisting of mixed port numbers and/or ranged intervals.
-            Ex: From '20-25,53,80,111' to (20,21,22,23,24,25,53,80,111)
-            """
-            for port in port_seq.split(','):
-                try:
-                    yield int(port)
-                except ValueError:
-                    start, end = (int(port) for port in port.split('-'))
-                    yield from range(start, end + 1)
-
-        target_sequence = tuple(addresses.split(','))
-        port_sequence = tuple(parse_ports(ports))
-
-        return cls(target_addresses=target_sequence, ports=port_sequence)
+        for port in port_seq.split(','):
+            try:
+                port = int(port)
+                if not 0 < port < 65536:
+                    raise SystemExit(f'Error: Invalid port number {port}.')
+                yield port
+            except ValueError:
+                start, end = (int(port) for port in port.split('-'))
+                yield from range(start, end + 1)
+    return set(addresses.split(',')), set(parse_ports(ports))
 
 
 class OutputMethod(abc.ABC):
@@ -168,8 +165,10 @@ if __name__ == '__main__':
                         help='Only show open ports in the scan results.')
     cli_args = parser.parse_args()
 
-    scanner = AsyncTCPScanner.from_csv_string(addresses=cli_args.targets,
-                                              ports=cli_args.ports)
-    scanner.open_only = cli_args.open
+    parsed_addrs, parsed_ports = parse_csv_strings(addresses=cli_args.targets,
+                                                   ports=cli_args.ports)
+    scanner = AsyncTCPScanner(target_addresses=parsed_addrs,
+                              ports=parsed_ports,
+                              show_open_only=cli_args.open)
     to_screen = ScanToScreen(scanner)
     scanner.execute()
