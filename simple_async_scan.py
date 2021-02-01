@@ -42,42 +42,27 @@ class AsyncTCPScanner(object):
         self.__process_results(scan_results)
         self.__notify_all()
 
-    def __process_results(self, scan_results: list):
-        """Create a JSON report with the scan results so that their
-        processing can be done with data organized by target address."""
-
+    async def __scan_target_port(self, loop: asyncio.AbstractEventLoop,
+                                 address: str,
+                                 port: int) -> None:
         """
-        This method converts a 'scan_results' data structure like...
-        [('g.cn', 22, 'closed', 'ssh'), ('g.cn', 80, 'open', 'http')]
-        ... into a more convenient, similar to JSON, dictionary...
-        {'g.cn': {22: ('open', 'ssh'), 80: ('open', 'http')}}
+        Execute a TCP handshake on a target socket and add the result
+        to a JSON data structure of the form:
+        {'g.cn': {22: ('closed', 'ssh', 'timeout'),
+                  80: ('open', 'http', 'syn/ack')}}
         """
-        for info in scan_results:
-            self.json_report[info[0]].update({info[1]: (info[2], info[3])})
-
-    async def __scan_targets(self) -> tuple:
-        loop = asyncio.get_event_loop()
-        scans = (asyncio.create_task(self.__tcp_connection(loop, address, port))
-                 for port in self.ports for address in self.target_addresses)
-        results = await asyncio.gather(*scans)
-        return results
-
-    @staticmethod
-    async def __tcp_connection(loop: asyncio.AbstractEventLoop,
-                               target_address: str,
-                               port: int) -> Tuple[str, int, str, str]:
         try:
             await asyncio.wait_for(
-                asyncio.open_connection(target_address, port, loop=loop),
+                asyncio.open_connection(address, port, loop=loop),
                 timeout=3.0)
-            port_state = 'open'
+            port_state, reason = 'open', 'syn/ack'
         except (ConnectionRefusedError, asyncio.TimeoutError, OSError):
-            port_state = 'closed'
+            port_state, reason = 'closed', 'timeout'
         try:
-            service_name = socket.getservbyport(port)
+            service = socket.getservbyport(port)
         except OSError:
-            service_name = 'unknown'
-        return target_address, port, port_state, service_name
+            service = 'unknown'
+        self.results[address].update({port: (port_state, service, reason)})
 
     @classmethod
     def from_csv_string(cls, addresses: str, ports: str):
