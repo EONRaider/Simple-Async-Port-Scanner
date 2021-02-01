@@ -31,9 +31,9 @@ class AsyncTCPScanner(object):
         self.__observers.append(observer)
 
     def __notify_all(self):
-        """Send the scan results to all registered observers"""
-        for observer in self.__observers:
-            observer.update()
+        """Notify all registered observers that the scan results are
+        ready to be pulled and processed"""
+        [observer.update() for observer in self.__observers]
 
     def execute(self):
         self.start_time = time()
