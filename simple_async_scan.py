@@ -20,7 +20,11 @@ class AsyncTCPScanner(object):
         self.end_time: float = 0
         self.json_report = defaultdict(dict)
         self.__observers = list()
-        self.open_only = show_open_only
+        self.open_only: bool = show_open_only
+
+    @property
+    def total_time(self):
+        return self.end_time - self.start_time
 
     def register(self, observer):
         """Register a derived class of OutputMethod as an observer"""
