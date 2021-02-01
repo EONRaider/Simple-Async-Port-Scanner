@@ -62,9 +62,9 @@ Starting Async Port Scanner at Sat Jan 30 13:41:25 2021
 Scan report for scanme.nmap.org
 
 [>] Results for scanme.nmap.org:
-      PORT     STATE      SERVICE   
-       22       open        ssh     
-       80       open        http    
+      PORT     STATE      SERVICE      REASON   
+       22       open        ssh       syn/ack   
+       80       open        http      syn/ack   
 
 Async TCP Connect scan of 1000 ports for scanme.nmap.org completed in 1.685 seconds
 ```
@@ -131,28 +131,28 @@ Starting Async Port Scanner at Sat Jan 30 13:39:20 2021
 Scan report for 45.33.32.156 | demo.testfire.net
 
 [>] Results for 45.33.32.156:
-      PORT     STATE      SERVICE   
-       20      closed     ftp-data  
-       21      closed       ftp     
-       22       open        ssh     
-       23      closed      telnet   
-       24      closed     unknown   
-       25      closed       smtp    
-       53      closed      domain   
-       80       open        http    
-      111      closed      sunrpc   
+      PORT     STATE      SERVICE      REASON   
+       20      closed     ftp-data    timeout   
+       21      closed       ftp       timeout   
+       22       open        ssh       syn/ack   
+       23      closed      telnet     timeout   
+       24      closed     unknown     timeout   
+       25      closed       smtp      timeout   
+       53      closed      domain     timeout   
+       80       open        http      syn/ack   
+      111      closed      sunrpc     timeout   
 
 [>] Results for demo.testfire.net:
-      PORT     STATE      SERVICE   
-       20      closed     ftp-data  
-       21      closed       ftp     
-       22      closed       ssh     
-       23      closed      telnet   
-       24      closed     unknown   
-       25      closed       smtp    
-       53      closed      domain   
-       80       open        http    
-      111      closed      sunrpc   
+      PORT     STATE      SERVICE      REASON   
+       20      closed     ftp-data    timeout   
+       21      closed       ftp       timeout   
+       22      closed       ssh       timeout   
+       23      closed      telnet     timeout   
+       24      closed     unknown     timeout   
+       25      closed       smtp      timeout   
+       53      closed      domain     timeout   
+       80       open        http      syn/ack   
+      111      closed      sunrpc     timeout   
 
 Async TCP Connect scan of 18 ports for 45.33.32.156 | demo.testfire.net completed in 3.005 seconds
 ```
