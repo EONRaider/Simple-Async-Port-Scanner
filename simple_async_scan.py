@@ -37,16 +37,17 @@ class AsyncTCPScanner(object):
         """Register a derived class of OutputMethod as an observer"""
         self.__observers.append(observer)
 
-    def __notify_all(self):
+    async def __notify_all(self):
         """Notify all registered observers that the scan results are
         ready to be pulled and processed"""
-        [observer.update() for observer in self.__observers]
+        for observer in self.__observers:
+            asyncio.create_task(observer.update())
 
     def execute(self):
         self.start_time = perf_counter()
         self.loop.run_until_complete(asyncio.wait(self.__scan_coroutines))
         self.end_time = perf_counter()
-        self.__notify_all()
+        self.loop.run_until_complete(self.__notify_all())
 
     async def __scan_target_port(self, address: str, port: int) -> None:
         """
@@ -110,7 +111,7 @@ class OutputMethod(abc.ABC):
         subject.register(self)
 
     @abc.abstractmethod
-    def update(self, *args, **kwargs):
+    async def update(self, *args, **kwargs):
         pass
 
 
@@ -119,7 +120,7 @@ class ScanToScreen(OutputMethod):
         super().__init__(subject)
         self.scan = subject
 
-    def update(self):
+    async def update(self):
         all_targets: str = ' | '.join(self.scan.target_addresses)
         num_ports: int = len(self.scan.ports) * len(self.scan.target_addresses)
         output: str = '    {: ^8}{: ^12}{: ^12}{: ^12}'
@@ -137,6 +138,8 @@ class ScanToScreen(OutputMethod):
 
         print(f"\nAsync TCP Connect scan of {num_ports} ports for "
               f"{all_targets} completed in {self.scan.total_time:.3f} seconds")
+
+        await asyncio.sleep(0)
 
 
 if __name__ == '__main__':
