@@ -179,10 +179,10 @@ if __name__ == '__main__':
                              "specified, e.g., '20-25,53,80,443'.")
     parser.add_argument('--open', action='store_true',
                         help='Only show open ports in the scan results.')
-    args = parser.parse_args()
+    cli_args = parser.parse_args()
 
-    scanner = AsyncTCPScanner.from_csv_string(addresses=args.targets,
-                                              ports=args.ports)
-    scanner.open_only = args.open
+    scanner = AsyncTCPScanner.from_csv_string(addresses=cli_args.targets,
+                                              ports=cli_args.ports)
+    scanner.open_only = cli_args.open
     to_screen = ScanToScreen(scanner)
     scanner.execute()
