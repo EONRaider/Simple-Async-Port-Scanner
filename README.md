@@ -69,27 +69,6 @@ Scan report for scanme.nmap.org
 Async TCP Connect scan of 1000 ports for scanme.nmap.org completed in 1.685 seconds
 ```
 
-Compared to the same procedure using `nmap` (set to skip host discovery
-with -Pn and highest timing template with -T5), taking 19.79 seconds:
-
-```
-eonraider@havoc:~$ nmap scanme.nmap.org -Pn -T5 -sT -p 1-1000
-Starting Nmap 7.80 ( https://nmap.org ) at 2021-01-31 18:49 -03
-Warning: 45.33.32.156 giving up on port because retransmission cap hit (2).
-Nmap scan report for scanme.nmap.org (45.33.32.156)
-Host is up (0.23s latency).
-Other addresses for scanme.nmap.org (not scanned): 2600:3c01::f03c:91ff:fe18:bb2f
-Not shown: 970 closed ports, 28 filtered ports
-PORT   STATE SERVICE
-22/tcp open  ssh
-80/tcp open  http
-
-Nmap done: 1 IP address (1 host up) scanned in 19.79 seconds
-```
-
-*Different tests have shown the present application can be from 10 to 20
-times faster than `nmap` when performing simple TCP Connect scans.*
-
 **ADVISORY:** For the sake of simplicity this application does not
 implement a maximum number of workers responsible for making each
 connection, instead spawning a new worker for every target socket
