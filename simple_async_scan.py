@@ -7,18 +7,19 @@ import abc
 import asyncio
 import socket
 from collections import defaultdict
-from time import time, ctime
-from typing import Iterator, List, Sequence, Tuple
+from time import ctime, perf_counter, time
+from typing import Iterator, Collection
 
 
 class AsyncTCPScanner(object):
-    def __init__(self, target_addresses: Sequence[str], ports: Sequence[int], *,
+    def __init__(self, target_addresses: Collection[str],
+                 ports: Collection[int], *,
                  show_open_only: bool = False):
         self.target_addresses = target_addresses
         self.ports = ports
         self.start_time: float = 0
         self.end_time: float = 0
-        self.json_report = defaultdict(dict)
+        self.results = defaultdict(dict)
         self.__observers = list()
         self.open_only: bool = show_open_only
 
@@ -36,10 +37,12 @@ class AsyncTCPScanner(object):
         [observer.update() for observer in self.__observers]
 
     def execute(self):
-        self.start_time = time()
-        scan_results: List[tuple] = asyncio.run(self.__scan_targets())
-        self.end_time = time()
-        self.__process_results(scan_results)
+        loop = asyncio.get_event_loop()
+        scans = [self.__scan_target_port(loop, address, port)
+                 for port in self.ports for address in self.target_addresses]
+        self.start_time = perf_counter()
+        loop.run_until_complete(asyncio.wait(scans))
+        self.end_time = perf_counter()
         self.__notify_all()
 
     async def __scan_target_port(self, loop: asyncio.AbstractEventLoop,
