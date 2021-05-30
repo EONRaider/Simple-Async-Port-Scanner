@@ -9,7 +9,7 @@ import socket
 from collections import defaultdict
 from contextlib import contextmanager
 from time import ctime, perf_counter, time
-from typing import Collection, Iterator, Tuple
+from typing import Collection, Iterator
 
 
 class AsyncTCPScanner(object):
@@ -93,36 +93,40 @@ class AsyncTCPScanner(object):
         self.results[address].update({port: (port_state, service, reason)})
 
 
-def parse_csv_strings(addresses: str, ports: str) -> Tuple[set, set]:
-    """
-    Parse strings of comma-separated IP addresses/domain names and
-    port numbers and transform them into sets.
-
-    Args:
-        addresses (str): A string containing a sequence of IP
-            addresses and/or domain names.
-        ports (str): A string containing a sequence of valid port
-            numbers as defined by IETF RFC 6335.
-    Returns:
-        tuple[set, set]: Two sets containing addresses and ports.
-    """
-
-    def parse_ports(port_seq) -> Iterator[int]:
+    @classmethod
+    def from_csv_strings(cls, target_addresses: str, ports: str,
+                         *args, **kwargs):
         """
-        Yield an iterator with integers extracted from a string
-        consisting of mixed port numbers and/or ranged intervals.
-        Ex: From '20-25,53,80,111' to (20,21,22,23,24,25,53,80,111)
+        Create a new instance of AsyncTCPScanner by parsing strings of
+        comma-separated IP addresses/domain names and port numbers and
+        transforming them into sets.
+
+        Args:
+            target_addresses (str): A string containing a sequence of IP
+                addresses and/or domain names.
+            ports (str): A string containing a sequence of valid port
+                numbers as defined by IETF RFC 6335.
         """
-        for port in port_seq.split(','):
-            try:
-                port = int(port)
-                if not 0 < port < 65536:
-                    raise SystemExit(f'Error: Invalid port number {port}.')
-                yield port
-            except ValueError:
-                start, end = (int(port) for port in port.split('-'))
-                yield from range(start, end + 1)
-    return set(addresses.split(',')), set(parse_ports(ports))
+
+        def _parse_ports(port_seq) -> Iterator[int]:
+            """
+            Yield an iterator with integers extracted from a string
+            consisting of mixed port numbers and/or ranged intervals.
+            Ex: From '20-25,53,80,111' to (20,21,22,23,24,25,53,80,111)
+            """
+            for port in port_seq.split(','):
+                try:
+                    port = int(port)
+                    if not 0 < port < 65536:
+                        raise SystemExit(f'Error: Invalid port number {port}.')
+                    yield port
+                except ValueError:
+                    start, end = (int(port) for port in port.split('-'))
+                    yield from range(start, end + 1)
+
+        return cls(target_addresses=set(target_addresses.split(',')),
+                   ports=set(_parse_ports(ports)),
+                   *args, **kwargs)
 
 
 class OutputMethod(abc.ABC):
