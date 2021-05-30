@@ -12,16 +12,35 @@ from typing import Collection, Iterator, Tuple
 
 
 class AsyncTCPScanner(object):
-    def __init__(self, target_addresses: Collection[str],
-                 ports: Collection[int], *,
-                 show_open_only: bool = False):
+    """Perform asynchronous TCP-connect scans on collections of target
+    hosts and ports."""
+
+    def __init__(self,
+                 target_addresses: Collection[str],
+                 ports: Collection[int],
+                 timeout: float):
+        """
+        Args:
+            target_addresses (Collection[str]): A collection of strings
+                containing a sequence of IP addresses and/or domain
+                names.
+            ports (Collection[int]): A collection of integers containing
+                a sequence of valid port numbers as defined by
+                IETF RFC 6335.
+            timeout (float): Time to wait for a response from a target
+                before closing a connection to it. Setting this to too
+                short an interval may generate false-negatives by
+                identifying a result as a timeout too soon (instead of
+                just waiting the necessary time to receive a valid
+                response from a live server).
+        """
+
         self.target_addresses = target_addresses
         self.ports = ports
-        self.start_time: float = 0
-        self.end_time: float = 0
-        self.open_only: bool = show_open_only
+        self.timeout = timeout
         self.results = defaultdict(dict)
-        self.loop = asyncio.get_event_loop()
+        self.total_time = float()
+        self.__loop = asyncio.get_event_loop()
         self.__observers = list()
 
     @property
