@@ -130,9 +130,11 @@ class AsyncTCPScanner(object):
 
 
 class OutputMethod(abc.ABC):
-    """Interface for the implementation of all classes responsible for
+    """
+    Interface for the implementation of all classes responsible for
     further processing and/or output of the information gathered by
-    the AsyncTCPScanner class."""
+    the AsyncTCPScanner class.
+    """
 
     def __init__(self, subject):
         subject.register(self)
@@ -143,9 +145,10 @@ class OutputMethod(abc.ABC):
 
 
 class ScanToScreen(OutputMethod):
-    def __init__(self, subject):
+    def __init__(self, subject, show_open_only: bool = False):
         super().__init__(subject)
         self.scan = subject
+        self.open_only = show_open_only
 
     async def update(self):
         all_targets: str = ' | '.join(self.scan.target_addresses)
@@ -159,7 +162,7 @@ class ScanToScreen(OutputMethod):
             print(f'\n[>] Results for {address}:')
             print(output.format('PORT', 'STATE', 'SERVICE', 'REASON'))
             for port, port_info in sorted(self.scan.results[address].items()):
-                if self.scan.open_only is True and port_info[0] == 'closed':
+                if self.open_only is True and port_info[0] == 'closed':
                     continue
                 print(output.format(port, *port_info))
 
