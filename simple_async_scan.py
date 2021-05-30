@@ -195,14 +195,18 @@ if __name__ == '__main__':
                         help="A comma-separated sequence of port numbers "
                              "and/or port ranges to scan on each target "
                              "specified, e.g., '20-25,53,80,443'.")
+    parser.add_argument('--timeout', type=float, default=10.0,
+                        help='Time to wait for a response from a target before '
+                             'closing a connection (defaults to 10.0 seconds).')
     parser.add_argument('--open', action='store_true',
                         help='Only show open ports in the scan results.')
     cli_args = parser.parse_args()
 
-    parsed_addrs, parsed_ports = parse_csv_strings(addresses=cli_args.targets,
-                                                   ports=cli_args.ports)
-    scanner = AsyncTCPScanner(target_addresses=parsed_addrs,
-                              ports=parsed_ports,
-                              show_open_only=cli_args.open)
-    to_screen = ScanToScreen(scanner)
+    scanner = AsyncTCPScanner.from_csv_strings(
+        target_addresses=cli_args.targets,
+        ports=cli_args.ports,
+        timeout=cli_args.timeout)
+
+    to_screen = ScanToScreen(subject=scanner,
+                             show_open_only=cli_args.open)
     scanner.execute()
