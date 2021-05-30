@@ -58,7 +58,8 @@ class AsyncTCPScanner(object):
         self.total_time = perf_counter() - start_time
 
     def register(self, observer):
-        """Register a derived class of OutputMethod as an observer"""
+        """Register a class that implements the interface of
+        OutputMethod as an observer."""
         self.__observers.append(observer)
 
     async def _notify_all(self):
@@ -81,17 +82,26 @@ class AsyncTCPScanner(object):
 
         try:
             await asyncio.wait_for(
-                asyncio.open_connection(address, port, loop=self.loop),
-                timeout=3.0)
-            port_state, reason = 'open', 'syn/ack'
-        except (ConnectionRefusedError, asyncio.TimeoutError, OSError):
-            port_state, reason = 'closed', 'timeout'
+                asyncio.open_connection(address, port, loop=self.__loop),
+                timeout=self.timeout)
+            port_state, reason = 'open', 'SYN/ACK'
+        except (ConnectionRefusedError, asyncio.TimeoutError, OSError) as e:
+            reasons = {
+                'ConnectionRefusedError': 'Connection refused',
+                'TimeoutError': 'No response',
+                'OSError': 'Network error'
+            }
+            port_state, reason = 'closed', reasons[e.__class__.__name__]
         try:
             service = socket.getservbyport(port)
         except OSError:
             service = 'unknown'
         self.results[address].update({port: (port_state, service, reason)})
 
+    def execute(self):
+        with self._timer():
+            self.__loop.run_until_complete(asyncio.wait(self._scan_tasks))
+        self.__loop.run_until_complete(self._notify_all())
 
     @classmethod
     def from_csv_strings(cls, target_addresses: str, ports: str,
