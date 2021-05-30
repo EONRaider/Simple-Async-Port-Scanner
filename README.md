@@ -13,7 +13,7 @@ A simple pure-Python TCP Connect port scanner. This application leverages
 the use of Python's Standard Library `asyncio` framework to execute a
 number of TCP connections to an arbitrary number ports on target IP
 addresses, taking a maximum time equal to the connection `timeout`
-setting (defaults to 3 seconds) to return all results.
+setting (defaults to 10 seconds) to return all results.
 
 This application maintains no dependencies on third-party modules and can be
 run by any Python v3.7+ interpreter.
@@ -23,7 +23,7 @@ run by any Python v3.7+ interpreter.
 ### GNU / Linux
 
 Simply clone this repository with `git clone` and execute the
-`simple_async_scan.py` file as described in the following
+`async_tcp_scan.py` file as described in the following
 [Usage](#usage) section.
 
 ```
@@ -33,7 +33,7 @@ user@host:~/DIR$ git clone https://github.com/EONRaider/Simple-Async-Port-Scanne
 ## Usage
 
 ```
-usage: simple_async_scan.py [-h] -p PORTS [--open] ADDRESSES
+usage: async_tcp_scan.py [-h] -p PORTS [--open] ADDRESSES
 
 Simple asynchronous TCP Connect port scanner
 
@@ -47,8 +47,8 @@ optional arguments:
   --open                Only show open ports in the scan results.
 
 Usage examples:
-1. python3 simple_async_scan.py google.com -p 80,443
-2. python3 simple_async_scan.py 45.33.32.156,demo.testfire.net,18.192.172.30 -p 20-25,53,80,111,135,139,443,3306,5900
+1. python3 async_tcp_scan.py google.com -p 80,443
+2. python3 async_tcp_scan.py 45.33.32.156,demo.testfire.net,18.192.172.30 -p 20-25,53,80,111,135,139,443,3306,5900
 ```
 
 ## Application Performance
@@ -57,14 +57,14 @@ ones shown below are possible: the first 1000 TCP/IP ports of
 [scanme.nmap.org](http://scanme.nmap.org) are scanned in **1.685 seconds**:
 
 ```
-eonraider@havoc:~$ python3 simple_async_scan.py scanme.nmap.org -p 1-1000 --open
+eonraider@havoc:~$ python3 async_tcp_scan.py scanme.nmap.org -p 1-1000 --open
 Starting Async Port Scanner at Sat Jan 30 13:41:25 2021
 Scan report for scanme.nmap.org
 
 [>] Results for scanme.nmap.org:
       PORT     STATE      SERVICE      REASON   
-       22       open        ssh       syn/ack   
-       80       open        http      syn/ack   
+       22       open        ssh       SYN/ACK   
+       80       open        http      SYN/ACK   
 
 Async TCP Connect scan of 1000 ports for scanme.nmap.org completed in 1.685 seconds
 ```
@@ -93,7 +93,7 @@ advised by the developers to use caution when scanning live hosts.**
   </tr>
   <tr>
     <td>Execution</td>
-    <td><b>python3 simple_async_scan.py 45.33.32.156,demo.testfire.net -p 20-25,53,80,111</b></td>
+    <td><b>python3 async_tcp_scan.py 45.33.32.156,demo.testfire.net -p 20-25,53,80,111</b></td>
   </tr>
   <tr>
     <td>Outcome</td>
@@ -105,33 +105,33 @@ advised by the developers to use caution when scanning live hosts.**
 - Sample output:
 
 ```
-eonraider@havoc:~$ python3 simple_async_scan.py 45.33.32.156,demo.testfire.net -p 20-25,53,80,111
+eonraider@havoc:~$ python3 async_tcp_scan.py 45.33.32.156,demo.testfire.net -p 20-25,53,80,111
 Starting Async Port Scanner at Sat Jan 30 13:39:20 2021
 Scan report for 45.33.32.156 | demo.testfire.net
 
 [>] Results for 45.33.32.156:
       PORT     STATE      SERVICE      REASON   
-       20      closed     ftp-data    timeout   
-       21      closed       ftp       timeout   
-       22       open        ssh       syn/ack   
-       23      closed      telnet     timeout   
-       24      closed     unknown     timeout   
-       25      closed       smtp      timeout   
-       53      closed      domain     timeout   
-       80       open        http      syn/ack   
-      111      closed      sunrpc     timeout   
+       20      closed     ftp-data    No response   
+       21      closed       ftp       No response   
+       22       open        ssh       SYN/ACK   
+       23      closed      telnet     No response   
+       24      closed     unknown     No response   
+       25      closed       smtp      No response   
+       53      closed      domain     No response   
+       80       open        http      SYN/ACK   
+      111      closed      sunrpc     No response   
 
 [>] Results for demo.testfire.net:
       PORT     STATE      SERVICE      REASON   
-       20      closed     ftp-data    timeout   
-       21      closed       ftp       timeout   
-       22      closed       ssh       timeout   
-       23      closed      telnet     timeout   
-       24      closed     unknown     timeout   
-       25      closed       smtp      timeout   
-       53      closed      domain     timeout   
-       80       open        http      syn/ack   
-      111      closed      sunrpc     timeout   
+       20      closed     ftp-data    No response   
+       21      closed       ftp       No response   
+       22      closed       ssh       No response   
+       23      closed      telnet     No response   
+       24      closed     unknown     No response   
+       25      closed       smtp      No response   
+       53      closed      domain     No response   
+       80       open        http      SYN/ACK   
+      111      closed      sunrpc     No response   
 
 Async TCP Connect scan of 18 ports for 45.33.32.156 | demo.testfire.net completed in 3.005 seconds
 ```
