@@ -17,12 +17,12 @@ class AsyncTCPScanner(object):
     hosts and ports."""
 
     def __init__(self,
-                 target_addresses: Collection[str],
+                 targets: Collection[str],
                  ports: Collection[int],
                  timeout: float):
         """
         Args:
-            target_addresses (Collection[str]): A collection of strings
+            targets (Collection[str]): A collection of strings
                 containing a sequence of IP addresses and/or domain
                 names.
             ports (Collection[int]): A collection of integers containing
@@ -36,7 +36,7 @@ class AsyncTCPScanner(object):
                 response from a live server).
         """
 
-        self.target_addresses = target_addresses
+        self.targets = targets
         self.ports = ports
         self.timeout = timeout
         self.results = defaultdict(dict)
@@ -49,7 +49,7 @@ class AsyncTCPScanner(object):
         """Set up a scan coroutine for each pair of target address and
         port."""
         return [self._scan_target_port(address, port) for port in self.ports
-                for address in self.target_addresses]
+                for address in self.targets]
 
     @contextmanager
     def _timer(self):
@@ -104,7 +104,7 @@ class AsyncTCPScanner(object):
         self.__loop.run_until_complete(self._notify_all())
 
     @classmethod
-    def from_csv_strings(cls, target_addresses: str, ports: str,
+    def from_csv_strings(cls, targets: str, ports: str,
                          *args, **kwargs):
         """
         Create a new instance of AsyncTCPScanner by parsing strings of
@@ -112,7 +112,7 @@ class AsyncTCPScanner(object):
         transforming them into sets.
 
         Args:
-            target_addresses (str): A string containing a sequence of IP
+            targets (str): A string containing a sequence of IP
                 addresses and/or domain names.
             ports (str): A string containing a sequence of valid port
                 numbers as defined by IETF RFC 6335.
@@ -134,7 +134,7 @@ class AsyncTCPScanner(object):
                     start, end = (int(port) for port in port.split('-'))
                     yield from range(start, end + 1)
 
-        return cls(target_addresses=set(target_addresses.split(',')),
+        return cls(targets=set(targets.split(',')),
                    ports=set(_parse_ports(ports)),
                    *args, **kwargs)
 
@@ -161,8 +161,8 @@ class ScanToScreen(OutputMethod):
         self.open_only = show_open_only
 
     async def update(self):
-        all_targets: str = ' | '.join(self.scan.target_addresses)
-        num_ports: int = len(self.scan.ports) * len(self.scan.target_addresses)
+        all_targets: str = ' | '.join(self.scan.targets)
+        num_ports: int = len(self.scan.ports) * len(self.scan.targets)
         output: str = '    {: ^8}{: ^12}{: ^12}{: ^12}'
 
         print(f'Starting Async Port Scanner at {ctime(time())}')
@@ -212,10 +212,9 @@ if __name__ == '__main__':
                         help='Only show open ports in the scan results.')
     cli_args = parser.parse_args()
 
-    scanner = AsyncTCPScanner.from_csv_strings(
-        target_addresses=cli_args.targets,
-        ports=cli_args.ports,
-        timeout=cli_args.timeout)
+    scanner = AsyncTCPScanner.from_csv_strings(targets=cli_args.targets,
+                                               ports=cli_args.ports,
+                                               timeout=cli_args.timeout)
 
     to_screen = ScanToScreen(subject=scanner,
                              show_open_only=cli_args.open)
