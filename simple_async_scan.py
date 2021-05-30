@@ -48,33 +48,34 @@ class AsyncTCPScanner(object):
         return self.end_time - self.start_time
 
     @property
-    def __scan_coroutines(self):
-        return [self.__scan_target_port(address, port) for port in self.ports
+    def _scan_tasks(self):
+        """Set up a scan coroutine for each pair of target address and
+        port."""
+        return [self._scan_target_port(address, port) for port in self.ports
                 for address in self.target_addresses]
 
     def register(self, observer):
         """Register a derived class of OutputMethod as an observer"""
         self.__observers.append(observer)
 
-    async def __notify_all(self):
+    async def _notify_all(self):
         """Notify all registered observers that the scan results are
-        ready to be pulled and processed"""
+        ready to be pulled and processed."""
         for observer in self.__observers:
             asyncio.create_task(observer.update())
 
-    def execute(self):
-        self.start_time = perf_counter()
-        self.loop.run_until_complete(asyncio.wait(self.__scan_coroutines))
-        self.end_time = perf_counter()
-        self.loop.run_until_complete(self.__notify_all())
-
-    async def __scan_target_port(self, address: str, port: int) -> None:
+    async def _scan_target_port(self, address: str, port: int) -> None:
         """
         Execute a TCP handshake on a target port and add the result to
         a JSON data structure of the form:
-        {'example.com': {22: ('closed', 'ssh', 'timeout'),
-                         80: ('open', 'http', 'syn/ack')}}
+        {
+            'example.com': {
+                22: ('closed', 'ssh', 'No response'),
+                80: ('open', 'http', 'SYN/ACK')
+            }
+        }
         """
+
         try:
             await asyncio.wait_for(
                 asyncio.open_connection(address, port, loop=self.loop),
