@@ -7,6 +7,7 @@ import abc
 import asyncio
 import socket
 from collections import defaultdict
+from contextlib import contextmanager
 from time import ctime, perf_counter, time
 from typing import Collection, Iterator, Tuple
 
@@ -44,15 +45,17 @@ class AsyncTCPScanner(object):
         self.__observers = list()
 
     @property
-    def total_time(self):
-        return self.end_time - self.start_time
-
-    @property
     def _scan_tasks(self):
         """Set up a scan coroutine for each pair of target address and
         port."""
         return [self._scan_target_port(address, port) for port in self.ports
                 for address in self.target_addresses]
+
+    @contextmanager
+    def _timer(self):
+        start_time: float = perf_counter()
+        yield
+        self.total_time = perf_counter() - start_time
 
     def register(self, observer):
         """Register a derived class of OutputMethod as an observer"""
