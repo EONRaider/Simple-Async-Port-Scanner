@@ -105,8 +105,38 @@ class AsyncTCPScanner(object):
         self.__loop.run_until_complete(self._notify_all())
 
     @classmethod
-    def from_csv_strings(cls, targets: str, ports: str,
-                         *args, **kwargs):
+    def from_file(cls, targets: str, ports: str, encoding: str = 'utf_8',
+                  *args, **kwargs):
+        """
+        Create a new instance of AsyncTCPScanner by parsing
+        line-separated strings of IP addresses/domain names and port
+        numbers from text files and transforming them into tuples.
+
+        Args:
+            targets (str): A path to a file containing a sequence of
+                line-separated IP addresses and/or domain names.
+            ports (str): A path to a file containing a sequence of
+                line-separated valid port numbers as defined by
+                IETF RFC 6335.
+            encoding (str): Defaults to UTF-8.
+        """
+
+        def _parse_file(filename: str) -> Iterator[str]:
+            try:
+                with open(file=filename, mode="r", encoding=encoding) as file:
+                    yield from (line.strip() for line in file)
+            except FileNotFoundError:
+                raise SystemExit(f'[!] Fatal Error: File {filename} not found.')
+            except PermissionError:
+                raise SystemExit(f'[!] Fatal Error: Permission denied when '
+                                 f'reading file {filename}')
+
+        return cls(targets=tuple(_parse_file(targets)),
+                   ports=tuple(int(port) for port in _parse_file(ports)),
+                   *args, **kwargs)
+
+    @classmethod
+    def from_csv_strings(cls, targets: str, ports: str, *args, **kwargs):
         """
         Create a new instance of AsyncTCPScanner by parsing strings of
         comma-separated IP addresses/domain names and port numbers and
@@ -178,7 +208,7 @@ class ScanToScreen(OutputMethod):
                 print(output.format(port, *port_info))
 
         print(f"\nAsync TCP Connect scan of {num_ports} ports for "
-              f"{all_targets} completed in {self.scan.total_time:.3f} seconds")
+              f"{all_targets} completed in {self.scan.total_time:.2f} seconds")
 
         await asyncio.sleep(0)
 
@@ -210,7 +240,7 @@ if __name__ == '__main__':
                         help='Time to wait for a response from a target before '
                              'closing a connection (defaults to 10.0 seconds).')
     parser.add_argument('--open', action='store_true',
-                        help='Only show open ports in the scan results.')
+                        help='Only show open ports in scan results.')
     cli_args = parser.parse_args()
 
     scanner = AsyncTCPScanner.from_csv_strings(targets=cli_args.targets,
