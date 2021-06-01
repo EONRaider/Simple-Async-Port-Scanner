@@ -30,10 +30,11 @@ class AsyncTCPScanner(object):
                 IETF RFC 6335.
             timeout (float): Time to wait for a response from a target
                 before closing a connection to it. Setting this to too
-                short an interval may generate false-negatives by
-                identifying a result as a timeout too soon (instead of
-                just waiting the necessary time to receive a valid
-                response from a live server).
+                short an interval may prevent the scanner from waiting
+                the time necessary to receive a valid response from a
+                valid server, generating a false-negative by identifying
+                a result as a timeout too soon. Recommended setting to
+                a minimum of 10 seconds.
         """
 
         self.targets = targets
@@ -48,8 +49,8 @@ class AsyncTCPScanner(object):
     def _scan_tasks(self):
         """Set up a scan coroutine for each pair of target address and
         port."""
-        return [self._scan_target_port(address, port) for port in self.ports
-                for address in self.targets]
+        return [self._scan_target_port(target, port) for port in self.ports
+                for target in self.targets]
 
     @contextmanager
     def _timer(self):
@@ -74,7 +75,7 @@ class AsyncTCPScanner(object):
         a JSON data structure of the form:
         {
             'example.com': {
-                22: ('closed', 'ssh', 'No response'),
+                22: ('closed', 'ssh', 'Connection refused'),
                 80: ('open', 'http', 'SYN/ACK')
             }
         }
@@ -109,7 +110,7 @@ class AsyncTCPScanner(object):
         """
         Create a new instance of AsyncTCPScanner by parsing strings of
         comma-separated IP addresses/domain names and port numbers and
-        transforming them into sets.
+        transforming them into tuples.
 
         Args:
             targets (str): A string containing a sequence of IP
@@ -118,7 +119,7 @@ class AsyncTCPScanner(object):
                 numbers as defined by IETF RFC 6335.
         """
 
-        def _parse_ports(port_seq) -> Iterator[int]:
+        def _parse_ports(port_seq: str) -> Iterator[int]:
             """
             Yield an iterator with integers extracted from a string
             consisting of mixed port numbers and/or ranged intervals.
@@ -134,8 +135,8 @@ class AsyncTCPScanner(object):
                     start, end = (int(port) for port in port.split('-'))
                     yield from range(start, end + 1)
 
-        return cls(targets=set(targets.split(',')),
-                   ports=set(_parse_ports(ports)),
+        return cls(targets=tuple(targets.split(',')),
+                   ports=tuple(_parse_ports(ports)),
                    *args, **kwargs)
 
 
