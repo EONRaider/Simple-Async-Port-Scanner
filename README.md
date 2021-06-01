@@ -54,7 +54,7 @@ Usage examples:
 ## Application Performance
 Due to the nature of Python's `asyncio` framework results such as the 
 ones shown below are possible: the first 1000 TCP/IP ports of 
-[scanme.nmap.org](http://scanme.nmap.org) are scanned in **1.685 seconds**:
+[scanme.nmap.org](http://scanme.nmap.org) are scanned in **1.68 seconds**:
 
 ```
 eonraider@havoc:~$ python3 async_tcp_scan.py scanme.nmap.org -p 1-1000 --open
@@ -66,7 +66,7 @@ Scan report for scanme.nmap.org
        22       open        ssh       SYN/ACK   
        80       open        http      SYN/ACK   
 
-Async TCP Connect scan of 1000 ports for scanme.nmap.org completed in 1.685 seconds
+Async TCP Connect scan of 1000 ports for scanme.nmap.org completed in 1.68 seconds
 ```
 
 **ADVISORY:** For the sake of simplicity this application does not
@@ -133,7 +133,7 @@ Scan report for 45.33.32.156 | demo.testfire.net
        80       open        http      SYN/ACK   
       111      closed      sunrpc     No response   
 
-Async TCP Connect scan of 18 ports for 45.33.32.156 | demo.testfire.net completed in 3.005 seconds
+Async TCP Connect scan of 18 ports for 45.33.32.156 | demo.testfire.net completed in 3.01 seconds
 ```
 
 ## Legal Disclaimer
