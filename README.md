@@ -1,6 +1,6 @@
 # Python 3 Asynchronous TCP/IP Connect Port Scanner
 
-![Python Version](https://img.shields.io/badge/python-3.7+-blue?style=for-the-badge&logo=python)
+![Python Version](https://img.shields.io/badge/python-3.8+-blue?style=for-the-badge&logo=python)
 ![OS](https://img.shields.io/badge/OS-GNU%2FLinux-red?style=for-the-badge&logo=linux)
 [![CodeFactor Grade](https://img.shields.io/codefactor/grade/github/eonraider/simple-async-port-scanner?style=for-the-badge)](https://www.codefactor.io/repository/github/eonraider/simple-async-port-scanner)
 [![License](https://img.shields.io/github/license/EONRaider/Packet-Sniffer?style=for-the-badge)](https://github.com/EONRaider/Packet-Sniffer/blob/master/LICENSE)
@@ -9,31 +9,31 @@
 [![Discord](https://img.shields.io/badge/Discord-EONRaider-7289DA?style=flat-square&logo=discord)](https://discord.gg/KVjWBptv)
 [![Twitter](https://img.shields.io/badge/Twitter-eon__raider-38A1F3?style=flat-square&logo=twitter)](https://twitter.com/intent/follow?screen_name=eon_raider)
 
-A simple pure-Python TCP Connect port scanner. This application leverages
+A simple TCP Connect port scanner developed in Python 3. This application leverages
 the use of Python's Standard Library `asyncio` framework to execute a
 number of TCP connections to an arbitrary number ports on target IP
 addresses, taking a maximum time equal to the connection `timeout`
 setting (defaults to 10 seconds) to return all results.
 
 This application maintains no dependencies on third-party modules and can be
-run by any Python v3.7+ interpreter.
+run by any Python v3.8+ interpreter.
+
+## Demo
+![scanner_demo](https://user-images.githubusercontent.com/15611424/178142566-6bba065f-ca8d-43a8-a845-19bf650162f1.gif)
 
 ## Installation
-
-### GNU / Linux
-
 Simply clone this repository with `git clone` and execute the
-`async_tcp_scan.py` file as described in the following
+`scanner.py` file as described in the following
 [Usage](#usage) section.
-
 ```
-user@host:~/DIR$ git clone https://github.com/EONRaider/Simple-Async-Port-Scanner.git
+user@host:~$ git clone https://github.com/EONRaider/Simple-Async-Port-Scanner.git
+user@host:~$ cd simple-async-port-scanner
+user@host:~/simple-async-port-scanner$ python3 scanner/scanner.py example.com -p 80,443
 ```
 
 ## Usage
-
 ```
-usage: async_tcp_scan.py [-h] -p PORTS [--open] ADDRESSES
+usage: scanner.py [-h] -p PORTS [--open] ADDRESSES
 
 Simple asynchronous TCP Connect port scanner
 
@@ -55,9 +55,8 @@ Usage examples:
 Due to the nature of Python's `asyncio` framework results such as the 
 ones shown below are possible: the first 1000 TCP/IP ports of 
 [scanme.nmap.org](http://scanme.nmap.org) are scanned in **1.68 seconds**:
-
 ```
-eonraider@havoc:~$ python3 async_tcp_scan.py scanme.nmap.org -p 1-1000 --open
+eonraider@havoc:~$ python3 scanner.py scanme.nmap.org -p 1-1000 --open
 Starting Async Port Scanner at Sat Jan 30 13:41:25 2021
 Scan report for scanme.nmap.org
 
@@ -82,59 +81,6 @@ able to handle the sudden spike in the number of requests they have to
 handle. For this particular reason, and in addition to the
 [Legal Disclaimer](#legal-disclaimer) section below, **all users are
 advised by the developers to use caution when scanning live hosts.**
-
-## Running the Application
-
-<table>
-<tbody>
-  <tr>
-    <td>Objective</td>
-    <td>Scan ports on a series of domains and IP addresses</td>
-  </tr>
-  <tr>
-    <td>Execution</td>
-    <td><b>python3 async_tcp_scan.py 45.33.32.156,demo.testfire.net -p 20-25,53,80,111</b></td>
-  </tr>
-  <tr>
-    <td>Outcome</td>
-    <td>Refer to sample output below</td>
-  </tr>
-</tbody>
-</table>
-
-- Sample output:
-
-```
-eonraider@havoc:~$ python3 async_tcp_scan.py 45.33.32.156,demo.testfire.net -p 20-25,53,80,111
-Starting Async Port Scanner at Sat Jan 30 13:39:20 2021
-Scan report for 45.33.32.156 | demo.testfire.net
-
-[>] Results for 45.33.32.156:
-      PORT     STATE      SERVICE      REASON   
-       20      closed     ftp-data    No response   
-       21      closed       ftp       No response   
-       22       open        ssh       SYN/ACK   
-       23      closed      telnet     No response   
-       24      closed     unknown     No response   
-       25      closed       smtp      No response   
-       53      closed      domain     No response   
-       80       open        http      SYN/ACK   
-      111      closed      sunrpc     No response   
-
-[>] Results for demo.testfire.net:
-      PORT     STATE      SERVICE      REASON   
-       20      closed     ftp-data    No response   
-       21      closed       ftp       No response   
-       22      closed       ssh       No response   
-       23      closed      telnet     No response   
-       24      closed     unknown     No response   
-       25      closed       smtp      No response   
-       53      closed      domain     No response   
-       80       open        http      SYN/ACK   
-      111      closed      sunrpc     No response   
-
-Async TCP Connect scan of 18 ports for 45.33.32.156 | demo.testfire.net completed in 3.01 seconds
-```
 
 ## Legal Disclaimer
 
