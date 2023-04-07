@@ -80,7 +80,7 @@ class AsyncTCPScanner:
 
         try:
             await asyncio.wait_for(
-                asyncio.open_connection(address, port, loop=self._loop),
+                asyncio.open_connection(address, port),
                 timeout=self.timeout
             )
             port_state, reason = 'open', 'SYN/ACK'
