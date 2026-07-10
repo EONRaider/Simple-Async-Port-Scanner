@@ -40,7 +40,6 @@ class AsyncTCPScanner:
         self.timeout = timeout
         self.results = defaultdict(dict)
         self.total_time = float()
-        self._loop = asyncio.get_event_loop()
         self._observers = list()
 
     @property
@@ -97,7 +96,10 @@ class AsyncTCPScanner:
             service = 'unknown'
         self.results[address].update({port: (port_state, service, reason)})
 
-    def execute(self):
+    async def _execute(self):
         with self._timer():
-            self._loop.run_until_complete(asyncio.wait(self._scan_tasks))
-        self._loop.run_until_complete(self._notify_all())
+            await asyncio.gather(*self._scan_tasks)
+        await self._notify_all()
+
+    def execute(self):
+        asyncio.run(self._execute())
