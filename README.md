@@ -3,6 +3,7 @@
 [![PyPI](https://img.shields.io/pypi/v/async-port-scanner?style=for-the-badge)](https://pypi.org/project/async-port-scanner/)
 [![Python Version](https://img.shields.io/pypi/pyversions/async-port-scanner?style=for-the-badge&logo=python)](https://pypi.org/project/async-port-scanner/)
 [![CI](https://img.shields.io/github/actions/workflow/status/EONRaider/Simple-Async-Port-Scanner/ci.yml?style=for-the-badge&label=CI)](https://github.com/EONRaider/Simple-Async-Port-Scanner/actions/workflows/ci.yml)
+[![CodeFactor](https://www.codefactor.io/repository/github/eonraider/simple-async-port-scanner/badge)](https://www.codefactor.io/repository/github/eonraider/simple-async-port-scanner)
 [![License](https://img.shields.io/github/license/EONRaider/Simple-Async-Port-Scanner?style=for-the-badge)](https://github.com/EONRaider/Simple-Async-Port-Scanner/blob/master/LICENSE)
 
 [![Reddit](https://img.shields.io/badge/Reddit-EON__Raider-FF4500?style=flat-square&logo=reddit)](https://www.reddit.com/user/EON_Raider)
@@ -25,7 +26,18 @@ unchanged from prior versions. See [CHANGELOG.md](CHANGELOG.md) for the
 full release history.
 
 ## Demo
-![scanner_demo](https://user-images.githubusercontent.com/15611424/178142566-6bba065f-ca8d-43a8-a845-19bf650162f1.gif)
+```
+user@host:~$ async-port-scanner scanme.nmap.org -p 20-25,53,80,111,135,139,443,3306,5900 --open
+Starting Async Port Scanner at Wed Sep  9 11:19:33 2026
+Scan report for scanme.nmap.org
+
+[>] Results for scanme.nmap.org:
+      PORT     STATE      SERVICE      REASON   
+       22       open        ssh       SYN/ACK   
+       80       open        http      SYN/ACK   
+
+Async TCP Connect scan of 14 ports for scanme.nmap.org completed in 0.54 seconds
+```
 
 ## Installation
 
