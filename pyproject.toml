@@ -1,0 +1,71 @@
+[project]
+name = "async-port-scanner"
+version = "2.0.0"
+description = "A simple asynchronous TCP Connect port scanner"
+readme = "README.md"
+license = "AGPL-3.0-or-later"
+license-files = ["LICENSE"]
+authors = [{ name = "EONRaider", email = "livewire_voodoo@protonmail.com" }]
+requires-python = ">=3.12"
+keywords = ["port-scanner", "asyncio", "network", "security", "cli"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "Intended Audience :: Information Technology",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Security",
+    "Topic :: System :: Networking",
+]
+dependencies = []
+
+[project.scripts]
+async-port-scanner = "async_port_scanner.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/EONRaider/Simple-Async-Port-Scanner"
+Repository = "https://github.com/EONRaider/Simple-Async-Port-Scanner"
+Changelog = "https://github.com/EONRaider/Simple-Async-Port-Scanner/blob/master/CHANGELOG.md"
+
+[dependency-groups]
+dev = [
+    "mypy>=1.14",
+    "pytest>=8.3",
+    "pytest-asyncio>=0.24",
+    "pytest-cov>=6.0",
+    "ruff>=0.9",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/async_port_scanner"]
+
+[tool.ruff]
+line-length = 80
+src = ["src", "tests"]
+extend-exclude = ["*.md"]
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "B", "UP", "C4", "SIM", "RUF", "ASYNC"]
+
+[tool.mypy]
+strict = true
+python_version = "3.12"
+files = ["src"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.coverage.run]
+source = ["async_port_scanner"]
+
+[tool.coverage.report]
+show_missing = true

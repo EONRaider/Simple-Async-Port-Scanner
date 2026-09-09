@@ -1,0 +1,32 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+jobs:
+  ci:
+    uses: ./.github/workflows/ci.yml
+
+  publish:
+    needs: ci
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v5
+      - uses: astral-sh/setup-uv@v6
+      - run: uv build
+      - name: Verify the tag matches the version being published
+        run: |
+          set -euo pipefail
+          tag="${GITHUB_REF_NAME#v}"
+          built=$(uv run --isolated --no-project --with dist/*.whl \
+            python -c "from importlib.metadata import version; print(version('async-port-scanner'))")
+          if [ "$tag" != "$built" ]; then
+            echo "::error::Tag ${GITHUB_REF_NAME} would publish version ${built}, not ${tag}."
+            exit 1
+          fi
+      - run: uv publish --trusted-publishing always
