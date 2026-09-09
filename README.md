@@ -17,9 +17,10 @@ setting (defaults to 10 seconds) to return all results.
 This application maintains no dependencies on third-party modules.
 
 **Version 2.0** rewrites the project as an installable, tested package: it
-fixes a crash on Python 3.11+ (a deprecated `asyncio` usage pattern that
-had gone unmaintained since the last release), adds a full test suite and
-CI, and ships on PyPI for the first time. Scan behavior and CLI flags are
+fixes a crash that affected every Python 3.11+ interpreter under the prior
+release (a deprecated `asyncio` usage pattern that had gone unmaintained),
+adds a full test suite and CI, and ships on PyPI for the first time. The
+fix requires **Python 3.12+**; scan behavior and CLI flags are otherwise
 unchanged from prior versions. See [CHANGELOG.md](CHANGELOG.md) for the
 full release history.
 
