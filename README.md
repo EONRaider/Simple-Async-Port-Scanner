@@ -16,6 +16,13 @@ setting (defaults to 10 seconds) to return all results.
 
 This application maintains no dependencies on third-party modules.
 
+**Version 2.0** rewrites the project as an installable, tested package: it
+fixes a crash on Python 3.11+ (a deprecated `asyncio` usage pattern that
+had gone unmaintained since the last release), adds a full test suite and
+CI, and ships on PyPI for the first time. Scan behavior and CLI flags are
+unchanged from prior versions. See [CHANGELOG.md](CHANGELOG.md) for the
+full release history.
+
 ## Demo
 ![scanner_demo](https://user-images.githubusercontent.com/15611424/178142566-6bba065f-ca8d-43a8-a845-19bf650162f1.gif)
 
@@ -99,6 +106,13 @@ able to handle the sudden spike in the number of requests they have to
 handle. For this particular reason, and in addition to the
 [Legal Disclaimer](#legal-disclaimer) section below, **all users are
 advised by the developers to use caution when scanning live hosts.**
+
+## Contributing
+
+Bug reports and pull requests are welcome. See
+[CONTRIBUTING.md](CONTRIBUTING.md) for the development setup and the
+lint/type-check/test suite that CI enforces on every push and pull
+request.
 
 ## Legal Disclaimer
 

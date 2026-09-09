@@ -52,8 +52,14 @@ async def test_open_only_filters_out_closed_ports(capsys):
     await out.update()
 
     captured = capsys.readouterr().out
-    assert "80" in captured
-    assert "22" not in captured
+    assert "http" in captured
+    # Checking for the bare port number "22" would be flaky: the
+    # printed "Starting Async Port Scanner at <ctime>" header can
+    # coincidentally contain "22" in the time itself (e.g. a run at
+    # HH:MM:22). Assert on the closed row's unique service/reason
+    # strings instead.
+    assert "ssh" not in captured
+    assert "Connection refused" not in captured
 
 
 async def test_summary_line_reports_total_ports_and_time(capsys):
