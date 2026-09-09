@@ -1,9 +1,9 @@
 # Python 3 Asynchronous TCP/IP Connect Port Scanner
 
-![Python Version](https://img.shields.io/badge/python-3.8+-blue?style=for-the-badge&logo=python)
-![OS](https://img.shields.io/badge/OS-GNU%2FLinux-red?style=for-the-badge&logo=linux)
-[![CodeFactor Grade](https://img.shields.io/codefactor/grade/github/eonraider/simple-async-port-scanner?style=for-the-badge)](https://www.codefactor.io/repository/github/eonraider/simple-async-port-scanner)
-[![License](https://img.shields.io/github/license/EONRaider/Packet-Sniffer?style=for-the-badge)](https://github.com/EONRaider/Packet-Sniffer/blob/master/LICENSE)
+[![PyPI](https://img.shields.io/pypi/v/async-port-scanner?style=for-the-badge)](https://pypi.org/project/async-port-scanner/)
+[![Python Version](https://img.shields.io/pypi/pyversions/async-port-scanner?style=for-the-badge&logo=python)](https://pypi.org/project/async-port-scanner/)
+[![CI](https://img.shields.io/github/actions/workflow/status/EONRaider/Simple-Async-Port-Scanner/ci.yml?style=for-the-badge&label=CI)](https://github.com/EONRaider/Simple-Async-Port-Scanner/actions/workflows/ci.yml)
+[![License](https://img.shields.io/github/license/EONRaider/Simple-Async-Port-Scanner?style=for-the-badge)](https://github.com/EONRaider/Simple-Async-Port-Scanner/blob/master/LICENSE)
 
 [![Reddit](https://img.shields.io/badge/Reddit-EON__Raider-FF4500?style=flat-square&logo=reddit)](https://www.reddit.com/user/EON_Raider)
 [![Discord](https://img.shields.io/badge/Discord-EONRaider-7289DA?style=flat-square&logo=discord)](https://discord.gg/KVjWBptv)
@@ -14,48 +14,67 @@ number of TCP connections to an arbitrary number ports on target IP
 addresses, taking a maximum time equal to the connection `timeout`
 setting (defaults to 10 seconds) to return all results.
 
-This application maintains no dependencies on third-party modules and can be
-run by any Python v3.8+ interpreter.
+This application maintains no dependencies on third-party modules.
 
 ## Demo
 ![scanner_demo](https://user-images.githubusercontent.com/15611424/178142566-6bba065f-ca8d-43a8-a845-19bf650162f1.gif)
 
 ## Installation
-Simply clone this repository with `git clone` and execute the
-`scanner.py` file as described in the following
-[Usage](#usage) section.
+
+Install from PyPI, ideally with [pipx](https://pipx.pypa.io/) so the `async-port-scanner`
+command is available globally in its own isolated environment:
+
+```
+user@host:~$ pipx install async-port-scanner
+```
+
+Or with `pip`:
+
+```
+user@host:~$ pip install async-port-scanner
+```
+
+### For development
+
 ```
 user@host:~$ git clone https://github.com/EONRaider/Simple-Async-Port-Scanner.git
-user@host:~$ cd simple-async-port-scanner
-user@host:~/simple-async-port-scanner$ python3 scanner/scanner.py example.com -p 80,443
+user@host:~$ cd Simple-Async-Port-Scanner
+user@host:~/Simple-Async-Port-Scanner$ uv sync
+user@host:~/Simple-Async-Port-Scanner$ uv run async-port-scanner example.com -p 80,443
 ```
 
 ## Usage
 ```
-usage: scanner.py [-h] -p PORTS [--open] ADDRESSES
+usage: async-port-scanner [-h] -p PORTS [--timeout TIMEOUT] [--open]
+                          [--version]
+                          ADDRESSES
 
 Simple asynchronous TCP Connect port scanner
 
 positional arguments:
   ADDRESSES             A comma-separated sequence of IP addresses and/or domain names to scan, e.g., '45.33.32.156,65.61.137.117,testphp.vulnweb.com'.
 
-optional arguments:
+options:
   -h, --help            show this help message and exit
   -p PORTS, --ports PORTS
                         A comma-separated sequence of port numbers and/or port ranges to scan on each target specified, e.g., '20-25,53,80,443'.
-  --open                Only show open ports in the scan results.
+  --timeout TIMEOUT     Time to wait for a response from a target before closing a connection (defaults to 10.0 seconds).
+  --open                Only show open ports in scan results.
+  --version             show program's version number and exit
 
 Usage examples:
-1. python3 async_tcp_scan.py google.com -p 80,443
-2. python3 async_tcp_scan.py 45.33.32.156,demo.testfire.net,18.192.172.30 -p 20-25,53,80,111,135,139,443,3306,5900
+1. async-port-scanner google.com -p 80,443
+2. async-port-scanner 45.33.32.156,demo.testfire.net,18.192.172.30 -p 20-25,53,80,111,135,139,443,3306,5900
 ```
+
+`async-port-scanner` is also runnable as a module with `python -m async_port_scanner`.
 
 ## Application Performance
 Due to the nature of Python's `asyncio` framework results such as the 
 ones shown below are possible: the first 1000 TCP/IP ports of 
 [scanme.nmap.org](http://scanme.nmap.org) are scanned in **1.68 seconds**:
 ```
-eonraider@havoc:~$ python3 scanner.py scanme.nmap.org -p 1-1000 --open
+eonraider@havoc:~$ async-port-scanner scanme.nmap.org -p 1-1000 --open
 Starting Async Port Scanner at Sat Jan 30 13:41:25 2021
 Scan report for scanme.nmap.org
 
