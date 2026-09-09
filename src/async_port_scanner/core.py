@@ -82,10 +82,12 @@ class AsyncTCPScanner:
         }
         """
         try:
-            await asyncio.wait_for(
+            _reader, writer = await asyncio.wait_for(
                 asyncio.open_connection(address, port), timeout=self.timeout
             )
             port_state, reason = "open", "SYN/ACK"
+            writer.close()
+            await writer.wait_closed()
         except (ConnectionRefusedError, TimeoutError, OSError) as exc:
             port_state = "closed"
             if isinstance(exc, ConnectionRefusedError):

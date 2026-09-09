@@ -39,6 +39,24 @@ async def test_multi_target_multi_port_covers_cartesian_product(
         assert scanner.results[target][closed_port][0] == "closed"
 
 
+async def test_connection_refused_is_reported_deterministically():
+    """Supplements test_closed_port_is_reported_closed, which relies on
+    a released-but-not-yet-reused ephemeral port: mocks the refusal
+    directly so this assertion can't flake on port reuse timing."""
+    scanner = AsyncTCPScanner(
+        targets=("127.0.0.1",), ports=(9998,), timeout=1.0
+    )
+    with patch(
+        "async_port_scanner.core.asyncio.open_connection",
+        new=AsyncMock(side_effect=ConnectionRefusedError),
+    ):
+        await scanner._run()
+
+    state, _service, reason = scanner.results["127.0.0.1"][9998]
+    assert state == "closed"
+    assert reason == "Connection refused"
+
+
 async def test_timeout_is_reported_with_no_response_reason():
     scanner = AsyncTCPScanner(
         targets=("example.invalid",), ports=(9999,), timeout=1.0

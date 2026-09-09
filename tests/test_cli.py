@@ -32,6 +32,13 @@ class TestParsePorts:
         with pytest.raises(SystemExit):
             list(parse_ports(invalid_port))
 
+    @pytest.mark.parametrize("invalid_range", ["100-50", "0-10", "60000-70000"])
+    def test_invalid_range_exits(self, invalid_range):
+        """Descending, zero-inclusive, and out-of-bounds ranges must
+        raise rather than silently yield an empty or malformed range."""
+        with pytest.raises(SystemExit):
+            list(parse_ports(invalid_range))
+
 
 class TestProcessCliArgs:
     def test_wires_targets_ports_and_kwargs(self):
