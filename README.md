@@ -93,11 +93,13 @@ Usage examples:
 Thanks to Python's `asyncio` framework, a full sweep of the first 1000
 TCP/IP ports on [scanme.nmap.org](http://scanme.nmap.org) typically
 completes in well under a second. Across 100 sequential runs of the
-exact command below (paced to avoid bursting the shared host), the
+exact command below (one run to completion before the next, with a
+1.5-second pause between runs to avoid bursting the shared host), the
 **median completion time was 0.64 seconds** (mean 0.89s, range
-0.57s-2.62s); the slower outliers track TCP retransmissions on the
-network path to the target rather than any variance in the tool
-itself:
+0.57s-2.62s). Results were bimodal: ~77% of runs finished in under a
+second, while the rest clustered around 1.4-2.6s -- a pattern most
+likely explained by occasional TCP retransmission on the network path
+to the target, though this wasn't confirmed with a packet capture:
 ```
 eonraider@havoc:~$ async-port-scanner scanme.nmap.org -p 1-1000 --open
 Starting Async Port Scanner at Wed Sep  9 12:31:06 2026
