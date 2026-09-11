@@ -1,13 +1,13 @@
 # Python 3 Asynchronous TCP/IP Connect Port Scanner
 
-[![PyPI](https://img.shields.io/pypi/v/async-port-scanner?style=for-the-badge)](https://pypi.org/project/async-port-scanner/)
-[![Python Version](https://img.shields.io/pypi/pyversions/async-port-scanner?style=for-the-badge&logo=python)](https://pypi.org/project/async-port-scanner/)
-[![CI](https://img.shields.io/github/actions/workflow/status/EONRaider/Simple-Async-Port-Scanner/ci.yml?style=for-the-badge&label=CI)](https://github.com/EONRaider/Simple-Async-Port-Scanner/actions/workflows/ci.yml)
-[![CodeFactor](https://www.codefactor.io/repository/github/eonraider/simple-async-port-scanner/badge)](https://www.codefactor.io/repository/github/eonraider/simple-async-port-scanner)
-[![License](https://img.shields.io/github/license/EONRaider/Simple-Async-Port-Scanner?style=for-the-badge)](https://github.com/EONRaider/Simple-Async-Port-Scanner/blob/master/LICENSE)
+[![PyPI](https://img.shields.io/pypi/v/async-port-scanner?style=flat)](https://pypi.org/project/async-port-scanner/)
+[![Python Version](https://img.shields.io/pypi/pyversions/async-port-scanner?style=flat&logo=python)](https://pypi.org/project/async-port-scanner/)
+[![CI](https://img.shields.io/github/actions/workflow/status/EONRaider/Simple-Async-Port-Scanner/ci.yml?style=flat&label=CI)](https://github.com/EONRaider/Simple-Async-Port-Scanner/actions/workflows/ci.yml)
+[![CodeFactor](https://img.shields.io/codefactor/grade/github/eonraider/simple-async-port-scanner?style=flat&label=CodeFactor)](https://www.codefactor.io/repository/github/eonraider/simple-async-port-scanner)
+[![License](https://img.shields.io/github/license/EONRaider/Simple-Async-Port-Scanner?style=flat)](https://github.com/EONRaider/Simple-Async-Port-Scanner/blob/master/LICENSE)
 
-[![Reddit](https://img.shields.io/badge/Reddit-EON__Raider-FF4500?style=flat-square&logo=reddit)](https://www.reddit.com/user/EON_Raider)
-[![Discord](https://img.shields.io/badge/Discord-EONRaider-7289DA?style=flat-square&logo=discord)](https://discord.gg/KVjWBptv)
+[![Reddit](https://img.shields.io/badge/Reddit-EON__Raider-FF4500?style=flat&logo=reddit)](https://www.reddit.com/user/EON_Raider)
+[![Discord](https://img.shields.io/badge/Discord-EONRaider-7289DA?style=flat&logo=discord)](https://discord.gg/KVjWBptv)
 
 A simple TCP Connect port scanner developed in Python 3. This application leverages
 the use of Python's Standard Library `asyncio` framework to execute a
