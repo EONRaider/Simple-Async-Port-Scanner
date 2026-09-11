@@ -127,6 +127,28 @@ handle. For this particular reason, and in addition to the
 [Legal Disclaimer](#legal-disclaimer) section below, **all users are
 advised by the developers to use caution when scanning live hosts.**
 
+## How it works
+
+`cli.py`'s `main()` parses the target addresses and ports, builds an
+`AsyncTCPScanner`, and registers an `OutputToScreen` as its observer
+before the scan starts. `AsyncTCPScanner._run()` then drives one
+`asyncio.TaskGroup` task per target-port combination through
+`_scan_target_port()`, each attempting a TCP handshake bounded by
+`--timeout` and classifying the result — open, or closed with a
+reason — into a shared results dict. Once every task completes, the
+scanner notifies its registered observers and `OutputToScreen` prints
+the sorted results as a table. The full tour, including the
+concurrency tradeoff behind the ADVISORY above, is in
+[ARCHITECTURE.md](ARCHITECTURE.md).
+
+The test suite exercises this pipeline against local ephemeral ports
+rather than live network hosts, so it runs without any external
+dependency:
+
+```
+uv run pytest
+```
+
 ## Contributing
 
 Bug reports and pull requests are welcome. See
