@@ -3,7 +3,7 @@
 [![PyPI](https://img.shields.io/pypi/v/async-port-scanner?style=flat)](https://pypi.org/project/async-port-scanner/)
 [![Python Version](https://img.shields.io/pypi/pyversions/async-port-scanner?style=flat&logo=python)](https://pypi.org/project/async-port-scanner/)
 [![CI](https://img.shields.io/github/actions/workflow/status/EONRaider/Simple-Async-Port-Scanner/ci.yml?style=flat&label=CI)](https://github.com/EONRaider/Simple-Async-Port-Scanner/actions/workflows/ci.yml)
-[![CodeFactor](https://www.codefactor.io/repository/github/eonraider/simple-async-port-scanner/badge)](https://www.codefactor.io/repository/github/eonraider/simple-async-port-scanner)
+[![CodeFactor](https://img.shields.io/codefactor/grade/github/eonraider/simple-async-port-scanner?style=flat&label=CodeFactor)](https://www.codefactor.io/repository/github/eonraider/simple-async-port-scanner)
 [![License](https://img.shields.io/github/license/EONRaider/Simple-Async-Port-Scanner?style=flat)](https://github.com/EONRaider/Simple-Async-Port-Scanner/blob/master/LICENSE)
 
 [![Reddit](https://img.shields.io/badge/Reddit-EON__Raider-FF4500?style=flat&logo=reddit)](https://www.reddit.com/user/EON_Raider)
