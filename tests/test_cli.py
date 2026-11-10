@@ -39,6 +39,12 @@ class TestParsePorts:
         with pytest.raises(SystemExit):
             list(parse_ports(invalid_range))
 
+    @pytest.mark.parametrize("non_numeric", ["abc", "", "80-", "-p", "1-2-3", "80,abc"])
+    def test_non_numeric_port_spec_exits_cleanly(self, non_numeric):
+        """Non-numeric port specs must exit with a clean error, not a traceback."""
+        with pytest.raises(SystemExit):
+            list(parse_ports(non_numeric))
+
 
 class TestProcessCliArgs:
     def test_wires_targets_ports_and_kwargs(self):
