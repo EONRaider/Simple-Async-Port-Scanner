@@ -24,7 +24,10 @@ def parse_ports(port_seq: str) -> Generator[int, Any, None]:
                 raise SystemExit(f"Error: Invalid port number {port_num}.")
             yield port_num
         except ValueError:
-            start, end = (int(p) for p in port.split("-"))
+            try:
+                start, end = (int(p) for p in port.split("-"))
+            except ValueError:
+                raise SystemExit(f"Error: Invalid port specification '{port}'.") from None
             if not (0 < start <= end < 65536):
                 raise SystemExit(f"Error: Invalid port range {port}.") from None
             yield from range(start, end + 1)
