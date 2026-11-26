@@ -7,7 +7,6 @@
 [![License](https://img.shields.io/github/license/EONRaider/Simple-Async-Port-Scanner?style=flat)](https://github.com/EONRaider/Simple-Async-Port-Scanner/blob/master/LICENSE)
 
 [![Reddit](https://img.shields.io/badge/Reddit-EON__Raider-FF4500?style=flat&logo=reddit)](https://www.reddit.com/user/EON_Raider)
-[![Discord](https://img.shields.io/badge/Discord-EONRaider-7289DA?style=flat&logo=discord)](https://discord.gg/KVjWBptv)
 
 A simple TCP Connect port scanner developed in Python 3. This application leverages
 the use of Python's Standard Library `asyncio` framework to execute a
